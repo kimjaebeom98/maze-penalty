@@ -646,12 +646,27 @@ select option {
 /* Legend */
 .legend {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     gap: 8px;
-    justify-content: center;
     padding: 10px;
     background: rgba(255, 255, 255, 0.05);
     border-radius: 10px;
+}
+
+.legend-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+}
+
+.legend-row.players {
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.legend-row.items {
+    opacity: 0.9;
 }
 
 .legend-item {
@@ -662,6 +677,11 @@ select option {
     padding: 4px 8px;
     background: rgba(255, 255, 255, 0.05);
     border-radius: 5px;
+}
+
+.legend-item.item {
+    background: rgba(255, 255, 255, 0.03);
+    font-size: 0.7rem;
 }
 
 .legend-item svg {

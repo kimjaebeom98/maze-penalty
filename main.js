@@ -798,27 +798,33 @@ const LEGEND_ICONS = {
 
 function updateLegend() {
     const legend = document.getElementById('legend');
-    let html = players.map((p, i) => `
+
+    // Players row
+    let playersHtml = players.map((p, i) => `
         <div class="legend-item">
             <div class="legend-color" style="background: ${COLORS[i]}"></div>
             <span>${p.name}</span>
         </div>
     `).join('');
+    playersHtml += `<div class="legend-item"><div class="legend-color" style="background: #2ecc71"></div>${LEGEND_ICONS.flag}<span>출구</span></div>`;
 
-    html += `<div class="legend-item"><div class="legend-color" style="background: #2ecc71"></div>${LEGEND_ICONS.flag}<span>출구</span></div>`;
-
+    // Items row
+    let itemsHtml = '';
     if (enableSpecialTiles) {
-        html += `
-            <div class="legend-item"><div class="legend-tile" style="background: #27ae60"></div>${LEGEND_ICONS.boost}<span>부스트</span></div>
-            <div class="legend-item"><div class="legend-tile" style="background: #9b59b6"></div>${LEGEND_ICONS.slow}<span>슬로우</span></div>
-            <div class="legend-item"><div class="legend-tile" style="background: #f1c40f"></div>${LEGEND_ICONS.lightning}<span>번개점프</span></div>
-            <div class="legend-item"><div class="legend-tile" style="background: #00cec9"></div>${LEGEND_ICONS.freeze}<span>빙결</span></div>
-            <div class="legend-item"><div class="legend-tile" style="background: #e74c3c"></div>${LEGEND_ICONS.reverse}<span>후퇴</span></div>
-            <div class="legend-item"><div class="legend-tile" style="background: #3498db"></div>${LEGEND_ICONS.portal}<span>포탈</span></div>
+        itemsHtml = `
+            <div class="legend-item item"><div class="legend-tile" style="background: #27ae60"></div>${LEGEND_ICONS.boost}<span>부스트</span></div>
+            <div class="legend-item item"><div class="legend-tile" style="background: #9b59b6"></div>${LEGEND_ICONS.slow}<span>슬로우</span></div>
+            <div class="legend-item item"><div class="legend-tile" style="background: #f1c40f"></div>${LEGEND_ICONS.lightning}<span>번개점프</span></div>
+            <div class="legend-item item"><div class="legend-tile" style="background: #00cec9"></div>${LEGEND_ICONS.freeze}<span>빙결</span></div>
+            <div class="legend-item item"><div class="legend-tile" style="background: #e74c3c"></div>${LEGEND_ICONS.reverse}<span>후퇴</span></div>
+            <div class="legend-item item"><div class="legend-tile" style="background: #3498db"></div>${LEGEND_ICONS.portal}<span>포탈</span></div>
         `;
     }
 
-    legend.innerHTML = html;
+    legend.innerHTML = `
+        <div class="legend-row players">${playersHtml}</div>
+        ${itemsHtml ? `<div class="legend-row items">${itemsHtml}</div>` : ''}
+    `;
 }
 
 async function startCountdown() {
