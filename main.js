@@ -713,8 +713,15 @@ function initCanvas() {
     minimapCanvas = document.getElementById('minimapCanvas');
     minimapCtx = minimapCanvas.getContext('2d');
 
-    const maxSize = Math.min(window.innerWidth - 280, window.innerHeight - 200, 650);
-    cellSize = Math.floor(maxSize / mazeWidth);
+    // Better mobile support
+    const isMobile = window.innerWidth <= 900;
+    const padding = isMobile ? 20 : 280;
+    const maxWidth = window.innerWidth - padding;
+    const maxHeight = window.innerHeight - (isMobile ? 300 : 200);
+    const maxSize = Math.min(maxWidth, maxHeight, isMobile ? 400 : 650);
+
+    // Ensure minimum cell size for visibility
+    cellSize = Math.max(Math.floor(maxSize / mazeWidth), 8);
 
     canvas.width = mazeWidth * cellSize;
     canvas.height = mazeHeight * cellSize;

@@ -962,4 +962,122 @@ select option {
     .feature-list { gap: 8px; }
     .feature-item { padding: 10px; }
     .logo-icon { width: 36px !important; height: 36px !important; }
+
+    /* Mobile game screen improvements */
+    .maze-wrapper {
+        padding: 0;
+    }
+
+    .maze-main {
+        width: 100%;
+    }
+
+    .game-status {
+        padding: 8px;
+    }
+
+    .game-status h2 {
+        font-size: 1rem;
+    }
+
+    .canvas-container {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        overflow: hidden;
+    }
+
+    #mazeCanvas {
+        max-width: 100%;
+        height: auto;
+    }
+
+    .legend {
+        padding: 8px;
+        gap: 4px;
+    }
+
+    .legend-row {
+        gap: 4px;
+    }
+
+    .legend-item {
+        padding: 3px 6px;
+        font-size: 0.65rem;
+    }
+
+    .legend-item svg {
+        width: 12px;
+        height: 12px;
+    }
+
+    .maze-sidebar {
+        gap: 8px;
+    }
+
+    .sidebar-card {
+        padding: 8px;
+    }
+
+    .sidebar-card h3 {
+        font-size: 0.8rem;
+        margin-bottom: 6px;
+    }
+
+    .live-rank {
+        padding: 6px;
+        font-size: 0.75rem;
+    }
+
+    .progress-container {
+        padding: 0 10px;
+    }
+
+    .btn-secondary {
+        padding: 12px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 400px) {
+    .container {
+        padding: 5px;
+    }
+
+    h1 { font-size: 1.4rem; }
+
+    .logo-icon { width: 28px !important; height: 28px !important; }
+
+    .card { padding: 12px; }
+
+    .feature-item {
+        padding: 8px;
+    }
+
+    .feature-icon {
+        width: 36px;
+        height: 36px;
+    }
+
+    .feature-icon [data-lucide] {
+        width: 20px;
+        height: 20px;
+    }
+
+    .feature-text h4 {
+        font-size: 0.85rem;
+    }
+
+    .feature-text p {
+        font-size: 0.7rem;
+    }
+
+    .sidebar-card {
+        min-width: 100px;
+    }
+
+    .countdown-number {
+        font-size: 3rem;
+    }
 }
