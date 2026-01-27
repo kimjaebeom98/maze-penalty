@@ -13,16 +13,16 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
             min-height: 100vh;
             color: #fff;
             overflow-x: hidden;
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1000px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 15px;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -37,12 +37,18 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            text-shadow: 0 0 30px rgba(255, 107, 107, 0.3);
+            animation: gradientShift 3s ease infinite;
+            background-size: 200% auto;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% center; }
+            50% { background-position: 100% center; }
         }
 
         .subtitle {
             color: #a0a0a0;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             font-size: 1.1rem;
         }
 
@@ -75,7 +81,7 @@
         }
 
         .form-group {
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         label {
@@ -87,7 +93,7 @@
 
         select, input {
             width: 100%;
-            padding: 15px;
+            padding: 14px;
             border: 2px solid rgba(255, 255, 255, 0.1);
             border-radius: 12px;
             background: rgba(255, 255, 255, 0.05);
@@ -108,8 +114,10 @@
 
         .player-inputs {
             display: grid;
-            gap: 12px;
-            margin-top: 15px;
+            gap: 10px;
+            margin-top: 12px;
+            max-height: 200px;
+            overflow-y: auto;
         }
 
         .player-input {
@@ -123,10 +131,45 @@
             height: 20px;
             border-radius: 50%;
             flex-shrink: 0;
+            box-shadow: 0 0 10px currentColor;
         }
 
         .player-input input {
             flex: 1;
+        }
+
+        .options-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .checkbox-group:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: #48dbfb;
+        }
+
+        .checkbox-group label {
+            margin: 0;
+            cursor: pointer;
+            font-size: 0.9rem;
         }
 
         .btn {
@@ -175,65 +218,176 @@
         }
 
         /* Maze Screen */
-        .maze-container {
+        .maze-wrapper {
+            position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 20px;
+            gap: 15px;
             width: 100%;
         }
 
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 750px;
+            padding: 10px 0;
+        }
+
+        .live-rankings {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .live-rank {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+
+        .live-rank.finished {
+            background: rgba(46, 204, 113, 0.3);
+        }
+
+        .live-rank .rank-num {
+            font-weight: bold;
+            color: #feca57;
+        }
+
+        .live-rank .rank-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .canvas-container {
+            position: relative;
+        }
+
         #mazeCanvas {
-            border-radius: 15px;
+            border-radius: 12px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-            max-width: 100%;
-            height: auto;
+        }
+
+        #particleCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            border-radius: 12px;
+        }
+
+        .minimap-container {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 8px;
+            padding: 5px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        #minimapCanvas {
+            border-radius: 4px;
+        }
+
+        .countdown-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 12px;
+            z-index: 10;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .countdown-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .countdown-number {
+            font-size: 8rem;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 0 0 50px rgba(255, 255, 255, 0.5);
+            animation: countdownPop 0.5s ease;
+        }
+
+        @keyframes countdownPop {
+            0% { transform: scale(2); opacity: 0; }
+            50% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
         }
 
         .legend {
             display: flex;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 10px;
             justify-content: center;
-            padding: 15px;
+            padding: 12px;
             background: rgba(255, 255, 255, 0.05);
             border-radius: 12px;
             width: 100%;
-            max-width: 700px;
+            max-width: 750px;
         }
 
         .legend-item {
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 0.9rem;
+            gap: 6px;
+            font-size: 0.85rem;
         }
 
         .legend-color {
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
             border-radius: 50%;
+        }
+
+        .legend-tile {
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
         }
 
         .progress-bar {
             width: 100%;
-            max-width: 700px;
-            height: 8px;
+            max-width: 750px;
+            height: 6px;
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
+            border-radius: 3px;
             overflow: hidden;
-            display: none;
-        }
-
-        .progress-bar.active {
-            display: block;
         }
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-            border-radius: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+            background-size: 200% 100%;
+            border-radius: 3px;
             transition: width 0.3s ease;
+            animation: progressGradient 2s linear infinite;
+        }
+
+        @keyframes progressGradient {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 200% 0%; }
         }
 
         /* Result Screen */
@@ -245,8 +399,8 @@
         .result-item {
             display: flex;
             align-items: center;
-            padding: 20px;
-            margin-bottom: 15px;
+            padding: 18px;
+            margin-bottom: 12px;
             background: rgba(255, 255, 255, 0.05);
             border-radius: 15px;
             border: 2px solid transparent;
@@ -271,10 +425,10 @@
         }
 
         .rank {
-            font-size: 2rem;
+            font-size: 1.8rem;
             font-weight: 800;
-            margin-right: 20px;
-            min-width: 50px;
+            margin-right: 15px;
+            min-width: 45px;
         }
 
         .rank.gold { color: #feca57; }
@@ -286,28 +440,29 @@
         }
 
         .player-name {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: 600;
         }
 
         .player-time {
             color: #a0a0a0;
-            font-size: 0.9rem;
-            margin-top: 5px;
+            font-size: 0.85rem;
+            margin-top: 4px;
         }
 
         .player-avatar {
-            width: 50px;
-            height: 50px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
-            margin-left: 15px;
+            margin-left: 12px;
+            box-shadow: 0 0 15px currentColor;
         }
 
         .loser-badge {
             background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-            padding: 5px 15px;
+            padding: 5px 12px;
             border-radius: 20px;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: 700;
             margin-left: auto;
             animation: shake 0.5s ease infinite;
@@ -319,8 +474,59 @@
         }
 
         .winner-crown {
+            font-size: 1.3rem;
+            margin-left: 8px;
+        }
+
+        .share-section {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-share {
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-share.twitter {
+            background: #1da1f2;
+        }
+
+        .btn-share.copy {
+            background: #6c757d;
+        }
+
+        /* Sound toggle */
+        .sound-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
             font-size: 1.5rem;
-            margin-left: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 100;
+        }
+
+        .sound-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .sound-toggle.muted {
+            opacity: 0.5;
         }
 
         /* Responsive */
@@ -328,13 +534,17 @@
             h1 { font-size: 1.8rem; }
             .card { padding: 20px; }
             .btn { padding: 15px; font-size: 1rem; }
-            .result-item { padding: 15px; }
-            .rank { font-size: 1.5rem; min-width: 40px; }
-            .player-name { font-size: 1.1rem; }
+            .result-item { padding: 12px; }
+            .rank { font-size: 1.4rem; min-width: 35px; }
+            .player-name { font-size: 1rem; }
+            .options-row { grid-template-columns: 1fr; }
+            .countdown-number { font-size: 5rem; }
         }
     </style>
 </head>
 <body>
+    <button class="sound-toggle" id="soundToggle" onclick="toggleSound()">🔊</button>
+
     <div class="container">
         <!-- Start Screen -->
         <div id="startScreen" class="screen active">
@@ -360,64 +570,250 @@
                     <div id="playerInputs" class="player-inputs"></div>
                 </div>
 
+                <div class="options-row">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="optFog" checked>
+                        <label for="optFog">🌫️ 안개 효과</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="optSpecial" checked>
+                        <label for="optSpecial">⚡ 특수 타일</label>
+                    </div>
+                </div>
+
                 <button class="btn btn-primary" onclick="startGame()">게임 시작</button>
             </div>
         </div>
 
         <!-- Maze Screen -->
         <div id="mazeScreen" class="screen">
-            <h1>🧩 미로 생성 완료!</h1>
-            <p class="subtitle">버튼을 누르면 레이스가 시작됩니다</p>
+            <h1 id="mazeTitle">🧩 준비 완료!</h1>
+            <p class="subtitle" id="mazeSubtitle">버튼을 누르면 카운트다운 후 시작됩니다</p>
 
-            <div class="maze-container">
-                <canvas id="mazeCanvas"></canvas>
-                <div class="progress-bar" id="progressBar">
-                    <div class="progress-fill" id="progressFill"></div>
+            <div class="maze-wrapper">
+                <div class="game-header">
+                    <div id="liveRankings" class="live-rankings"></div>
                 </div>
+
+                <div class="canvas-container">
+                    <canvas id="mazeCanvas"></canvas>
+                    <canvas id="particleCanvas"></canvas>
+                    <div class="minimap-container">
+                        <canvas id="minimapCanvas"></canvas>
+                    </div>
+                    <div class="countdown-overlay" id="countdownOverlay">
+                        <div class="countdown-number" id="countdownNumber">3</div>
+                    </div>
+                </div>
+
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+
                 <div id="legend" class="legend"></div>
-                <button class="btn btn-secondary" id="startRaceBtn" onclick="startRace()">🏁 결과 보기</button>
+
+                <button class="btn btn-secondary" id="startRaceBtn" onclick="startCountdown()">🏁 레이스 시작</button>
             </div>
         </div>
 
         <!-- Result Screen -->
         <div id="resultScreen" class="screen">
             <h1>🏆 최종 결과</h1>
-            <p class="subtitle">순위가 결정되었습니다!</p>
+            <p class="subtitle" id="resultSubtitle">순위가 결정되었습니다!</p>
 
             <div id="resultList" class="result-list"></div>
+
+            <div class="share-section">
+                <button class="btn btn-share copy" onclick="copyResult()">📋 결과 복사</button>
+            </div>
 
             <button class="btn btn-primary" onclick="restart()" style="max-width: 500px; margin-top: 20px;">🔄 다시 하기</button>
         </div>
     </div>
 
     <script>
-        // Player colors - vibrant and distinguishable
+        // ========== CONFIGURATION ==========
         const COLORS = [
             '#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3',
             '#1dd1a1', '#5f27cd', '#ff9f43', '#00d2d3'
         ];
 
-        // Game state
+        const MAZE_SIZE = 37;
+        const MOVE_DURATION = 100;
+
+        // Special tile types
+        const TILE = {
+            WALL: 1,
+            PATH: 0,
+            BOOST: 2,    // Speed up
+            SLOW: 3,     // Slow down
+            PORTAL_A: 4, // Portal pair A
+            PORTAL_B: 5  // Portal pair B
+        };
+
+        // ========== GAME STATE ==========
         let players = [];
         let maze = [];
-        let mazeWidth = 35;  // Increased from 21
-        let mazeHeight = 35; // Increased from 21
-        let cellSize = 20;
+        let mazeWidth = MAZE_SIZE;
+        let mazeHeight = MAZE_SIZE;
+        let cellSize = 18;
         let exitPos = { x: 0, y: 0 };
-        let canvas, ctx;
+        let portalA = null, portalB = null;
+
+        let canvas, ctx, particleCanvas, particleCtx, minimapCanvas, minimapCtx;
         let animationId = null;
         let raceStarted = false;
         let finishOrder = [];
+        let particles = [];
+        let revealedCells = new Set();
 
-        // Animation settings
-        const MOVE_DURATION = 120; // ms per cell (smoother movement)
+        // Options
+        let enableFog = true;
+        let enableSpecialTiles = true;
+        let soundEnabled = true;
 
-        // Easing function for smooth animation
+        // Audio context
+        let audioCtx = null;
+
+        // ========== AUDIO SYSTEM ==========
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playTone(frequency, duration, type = 'sine', volume = 0.3) {
+            if (!soundEnabled || !audioCtx) return;
+
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            oscillator.frequency.value = frequency;
+            oscillator.type = type;
+
+            gainNode.gain.setValueAtTime(volume, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+
+            oscillator.start(audioCtx.currentTime);
+            oscillator.stop(audioCtx.currentTime + duration);
+        }
+
+        function playCountdownBeep() {
+            playTone(440, 0.15, 'sine', 0.4);
+        }
+
+        function playStartSound() {
+            playTone(880, 0.3, 'sine', 0.5);
+            setTimeout(() => playTone(1100, 0.4, 'sine', 0.5), 100);
+        }
+
+        function playFinishSound(isFirst) {
+            if (isFirst) {
+                // Victory fanfare
+                playTone(523, 0.15, 'sine', 0.4);
+                setTimeout(() => playTone(659, 0.15, 'sine', 0.4), 150);
+                setTimeout(() => playTone(784, 0.3, 'sine', 0.5), 300);
+            } else {
+                playTone(600, 0.2, 'triangle', 0.3);
+            }
+        }
+
+        function playBoostSound() {
+            playTone(800, 0.1, 'sine', 0.2);
+            setTimeout(() => playTone(1000, 0.1, 'sine', 0.2), 50);
+        }
+
+        function playSlowSound() {
+            playTone(200, 0.2, 'sawtooth', 0.15);
+        }
+
+        function playPortalSound() {
+            playTone(400, 0.1, 'sine', 0.3);
+            setTimeout(() => playTone(800, 0.15, 'sine', 0.3), 100);
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const btn = document.getElementById('soundToggle');
+            btn.textContent = soundEnabled ? '🔊' : '🔇';
+            btn.classList.toggle('muted', !soundEnabled);
+        }
+
+        // ========== PARTICLE SYSTEM ==========
+        function createParticles(x, y, color, count = 20, type = 'burst') {
+            for (let i = 0; i < count; i++) {
+                const angle = (Math.PI * 2 / count) * i + Math.random() * 0.5;
+                const speed = type === 'burst' ? 3 + Math.random() * 4 : 1 + Math.random() * 2;
+
+                particles.push({
+                    x: x * cellSize + cellSize / 2,
+                    y: y * cellSize + cellSize / 2,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed - (type === 'firework' ? 5 : 0),
+                    life: 1,
+                    decay: 0.02 + Math.random() * 0.02,
+                    color: color,
+                    size: type === 'firework' ? 3 + Math.random() * 3 : 2 + Math.random() * 2,
+                    type: type
+                });
+            }
+        }
+
+        function createFirework(x, y) {
+            const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#1dd1a1', '#fff'];
+            for (let i = 0; i < 40; i++) {
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                const angle = Math.random() * Math.PI * 2;
+                const speed = 2 + Math.random() * 5;
+
+                particles.push({
+                    x: x * cellSize + cellSize / 2,
+                    y: y * cellSize + cellSize / 2,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    life: 1,
+                    decay: 0.015 + Math.random() * 0.01,
+                    color: color,
+                    size: 2 + Math.random() * 3,
+                    gravity: 0.1,
+                    type: 'firework'
+                });
+            }
+        }
+
+        function updateParticles() {
+            particles = particles.filter(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                if (p.gravity) p.vy += p.gravity;
+                p.life -= p.decay;
+                return p.life > 0;
+            });
+        }
+
+        function renderParticles() {
+            particleCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+
+            particles.forEach(p => {
+                particleCtx.globalAlpha = p.life;
+                particleCtx.fillStyle = p.color;
+                particleCtx.beginPath();
+                particleCtx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+                particleCtx.fill();
+            });
+
+            particleCtx.globalAlpha = 1;
+        }
+
+        // ========== EASING ==========
         function easeInOutQuad(t) {
             return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
         }
 
-        // Initialize player inputs
+        // ========== PLAYER INPUTS ==========
         function initPlayerInputs() {
             const count = parseInt(document.getElementById('playerCount').value);
             const container = document.getElementById('playerInputs');
@@ -427,7 +823,7 @@
                 const div = document.createElement('div');
                 div.className = 'player-input';
                 div.innerHTML = `
-                    <div class="player-color" style="background: ${COLORS[i]}"></div>
+                    <div class="player-color" style="background: ${COLORS[i]}; color: ${COLORS[i]}"></div>
                     <input type="text" id="player${i}" placeholder="참가자 ${i + 1}" maxlength="10">
                 `;
                 container.appendChild(div);
@@ -437,25 +833,25 @@
         document.getElementById('playerCount').addEventListener('change', initPlayerInputs);
         initPlayerInputs();
 
-        // Switch screens
+        // ========== SCREEN MANAGEMENT ==========
         function showScreen(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
         }
 
-        // Generate maze using Recursive Backtracking with more complexity
+        // ========== MAZE GENERATION ==========
         function generateMaze() {
             maze = [];
             for (let y = 0; y < mazeHeight; y++) {
                 maze[y] = [];
                 for (let x = 0; x < mazeWidth; x++) {
-                    maze[y][x] = 1;
+                    maze[y][x] = TILE.WALL;
                 }
             }
 
-            // Stack-based iterative approach to avoid stack overflow on large mazes
+            // Iterative backtracking
             const stack = [{ x: 1, y: 1 }];
-            maze[1][1] = 0;
+            maze[1][1] = TILE.PATH;
 
             while (stack.length > 0) {
                 const current = stack[stack.length - 1];
@@ -466,7 +862,6 @@
                     { dx: -2, dy: 0 }
                 ];
 
-                // Shuffle directions
                 for (let i = directions.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1));
                     [directions[i], directions[j]] = [directions[j], directions[i]];
@@ -477,26 +872,66 @@
                     const nx = current.x + dir.dx;
                     const ny = current.y + dir.dy;
 
-                    if (nx > 0 && nx < mazeWidth - 1 && ny > 0 && ny < mazeHeight - 1 && maze[ny][nx] === 1) {
-                        maze[current.y + dir.dy / 2][current.x + dir.dx / 2] = 0;
-                        maze[ny][nx] = 0;
+                    if (nx > 0 && nx < mazeWidth - 1 && ny > 0 && ny < mazeHeight - 1 && maze[ny][nx] === TILE.WALL) {
+                        maze[current.y + dir.dy / 2][current.x + dir.dx / 2] = TILE.PATH;
+                        maze[ny][nx] = TILE.PATH;
                         stack.push({ x: nx, y: ny });
                         found = true;
                         break;
                     }
                 }
 
-                if (!found) {
-                    stack.pop();
+                if (!found) stack.pop();
+            }
+
+            exitPos = { x: mazeWidth - 2, y: mazeHeight - 2 };
+            maze[exitPos.y][exitPos.x] = TILE.PATH;
+
+            // Add special tiles if enabled
+            if (enableSpecialTiles) {
+                addSpecialTiles();
+            }
+        }
+
+        function addSpecialTiles() {
+            const pathCells = [];
+            for (let y = 1; y < mazeHeight - 1; y++) {
+                for (let x = 1; x < mazeWidth - 1; x++) {
+                    if (maze[y][x] === TILE.PATH && !(x === exitPos.x && y === exitPos.y)) {
+                        pathCells.push({ x, y });
+                    }
                 }
             }
 
-            // Set exit at bottom-right
-            exitPos = { x: mazeWidth - 2, y: mazeHeight - 2 };
-            maze[exitPos.y][exitPos.x] = 0;
+            // Shuffle and pick cells for special tiles
+            for (let i = pathCells.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [pathCells[i], pathCells[j]] = [pathCells[j], pathCells[i]];
+            }
+
+            // Add boost tiles (5-8)
+            const boostCount = 5 + Math.floor(Math.random() * 4);
+            for (let i = 0; i < boostCount && i < pathCells.length; i++) {
+                maze[pathCells[i].y][pathCells[i].x] = TILE.BOOST;
+            }
+
+            // Add slow tiles (5-8)
+            const slowCount = 5 + Math.floor(Math.random() * 4);
+            for (let i = boostCount; i < boostCount + slowCount && i < pathCells.length; i++) {
+                maze[pathCells[i].y][pathCells[i].x] = TILE.SLOW;
+            }
+
+            // Add portal pair
+            const portalStart = boostCount + slowCount;
+            if (portalStart + 1 < pathCells.length) {
+                portalA = pathCells[portalStart];
+                portalB = pathCells[portalStart + 1];
+                maze[portalA.y][portalA.x] = TILE.PORTAL_A;
+                maze[portalB.y][portalB.x] = TILE.PORTAL_B;
+            }
         }
 
-        // Find path using BFS
+        // ========== PATHFINDING ==========
         function findPath(startX, startY, endX, endY) {
             const queue = [{ x: startX, y: startY, path: [] }];
             const visited = new Set();
@@ -522,7 +957,7 @@
                     const key = `${nx},${ny}`;
 
                     if (nx >= 0 && nx < mazeWidth && ny >= 0 && ny < mazeHeight &&
-                        maze[ny][nx] === 0 && !visited.has(key)) {
+                        maze[ny][nx] !== TILE.WALL && !visited.has(key)) {
                         visited.add(key);
                         queue.push({
                             x: nx,
@@ -536,7 +971,6 @@
             return [];
         }
 
-        // Get valid start positions spread across the maze
         function getStartPositions(count) {
             const positions = [];
             const usedPositions = new Set();
@@ -556,7 +990,7 @@
                 const area = startAreas[i];
                 let found = false;
 
-                for (let r = 0; r < 8 && !found; r++) {
+                for (let r = 0; r < 10 && !found; r++) {
                     for (let dy = -r; dy <= r && !found; dy++) {
                         for (let dx = -r; dx <= r && !found; dx++) {
                             const x = area.x + dx;
@@ -564,7 +998,7 @@
                             const key = `${x},${y}`;
 
                             if (x > 0 && x < mazeWidth - 1 && y > 0 && y < mazeHeight - 1 &&
-                                maze[y][x] === 0 && !usedPositions.has(key) &&
+                                maze[y][x] !== TILE.WALL && !usedPositions.has(key) &&
                                 !(x === exitPos.x && y === exitPos.y)) {
                                 positions.push({ x, y });
                                 usedPositions.add(key);
@@ -578,13 +1012,25 @@
             return positions;
         }
 
-        // Draw the maze background
+        // ========== RENDERING ==========
+        function getTileColor(tile, x, y) {
+            switch (tile) {
+                case TILE.WALL: return null; // Will use gradient
+                case TILE.PATH: return '#1a1a2e';
+                case TILE.BOOST: return '#27ae60';
+                case TILE.SLOW: return '#9b59b6';
+                case TILE.PORTAL_A:
+                case TILE.PORTAL_B: return '#3498db';
+                default: return '#1a1a2e';
+            }
+        }
+
         function drawMazeBackground() {
-            // Draw maze cells
             for (let y = 0; y < mazeHeight; y++) {
                 for (let x = 0; x < mazeWidth; x++) {
-                    if (maze[y][x] === 1) {
-                        // Wall with gradient effect
+                    const tile = maze[y][x];
+
+                    if (tile === TILE.WALL) {
                         const gradient = ctx.createLinearGradient(
                             x * cellSize, y * cellSize,
                             (x + 1) * cellSize, (y + 1) * cellSize
@@ -593,15 +1039,37 @@
                         gradient.addColorStop(1, '#34495e');
                         ctx.fillStyle = gradient;
                     } else {
-                        ctx.fillStyle = '#1a1a2e';
+                        ctx.fillStyle = getTileColor(tile, x, y);
                     }
+
                     ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+
+                    // Draw special tile icons
+                    if (tile === TILE.BOOST) {
+                        ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                        ctx.font = `${cellSize * 0.6}px sans-serif`;
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText('⚡', x * cellSize + cellSize / 2, y * cellSize + cellSize / 2);
+                    } else if (tile === TILE.SLOW) {
+                        ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                        ctx.font = `${cellSize * 0.6}px sans-serif`;
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText('🐌', x * cellSize + cellSize / 2, y * cellSize + cellSize / 2);
+                    } else if (tile === TILE.PORTAL_A || tile === TILE.PORTAL_B) {
+                        ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+                        ctx.font = `${cellSize * 0.6}px sans-serif`;
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText('🌀', x * cellSize + cellSize / 2, y * cellSize + cellSize / 2);
+                    }
                 }
             }
 
-            // Draw exit with glow effect
+            // Draw exit with glow
             ctx.shadowColor = '#2ecc71';
-            ctx.shadowBlur = 15;
+            ctx.shadowBlur = 20;
             ctx.fillStyle = '#2ecc71';
             ctx.beginPath();
             ctx.arc(
@@ -613,24 +1081,46 @@
             ctx.fill();
             ctx.shadowBlur = 0;
 
-            // Exit flag
             ctx.font = `${cellSize - 4}px serif`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText('🚩', exitPos.x * cellSize + cellSize / 2, exitPos.y * cellSize + cellSize / 2);
         }
 
-        // Draw a single player with smooth position
-        function drawPlayerSmooth(x, y, color, initial, isFinished) {
+        function drawFog() {
+            if (!enableFog) return;
+
+            ctx.fillStyle = 'rgba(15, 12, 41, 0.85)';
+
+            for (let y = 0; y < mazeHeight; y++) {
+                for (let x = 0; x < mazeWidth; x++) {
+                    if (!revealedCells.has(`${x},${y}`)) {
+                        ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+                    }
+                }
+            }
+        }
+
+        function revealArea(x, y, radius = 2) {
+            for (let dy = -radius; dy <= radius; dy++) {
+                for (let dx = -radius; dx <= radius; dx++) {
+                    const nx = x + dx;
+                    const ny = y + dy;
+                    if (nx >= 0 && nx < mazeWidth && ny >= 0 && ny < mazeHeight) {
+                        revealedCells.add(`${nx},${ny}`);
+                    }
+                }
+            }
+        }
+
+        function drawPlayer(x, y, color, initial, isFinished) {
             const px = x * cellSize + cellSize / 2;
             const py = y * cellSize + cellSize / 2;
-            const radius = cellSize / 2 - 3;
+            const radius = cellSize / 2 - 2;
 
-            // Glow effect
             ctx.shadowColor = color;
-            ctx.shadowBlur = isFinished ? 20 : 10;
+            ctx.shadowBlur = isFinished ? 25 : 12;
 
-            // Player circle
             ctx.fillStyle = color;
             ctx.beginPath();
             ctx.arc(px, py, radius, 0, Math.PI * 2);
@@ -638,32 +1128,28 @@
 
             ctx.shadowBlur = 0;
 
-            // Player initial
             ctx.fillStyle = '#fff';
-            ctx.font = `bold ${cellSize / 2}px sans-serif`;
+            ctx.font = `bold ${cellSize * 0.45}px sans-serif`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText(initial.toUpperCase(), px, py);
         }
 
-        // Draw path trail with gradient
         function drawPathTrail(player, colorIndex) {
             if (player.visitedPath.length < 2) return;
 
             const color = COLORS[colorIndex];
-
-            // Create gradient trail
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
 
             for (let i = 1; i < player.visitedPath.length; i++) {
                 const prev = player.visitedPath[i - 1];
                 const curr = player.visitedPath[i];
+                const alpha = 0.2 + (i / player.visitedPath.length) * 0.4;
 
-                // Fade effect based on position in trail
-                const alpha = 0.3 + (i / player.visitedPath.length) * 0.5;
-                ctx.strokeStyle = color + Math.floor(alpha * 255).toString(16).padStart(2, '0');
-                ctx.lineWidth = 3;
+                ctx.strokeStyle = color;
+                ctx.globalAlpha = alpha;
+                ctx.lineWidth = 2;
 
                 ctx.beginPath();
                 ctx.moveTo(prev.x * cellSize + cellSize / 2, prev.y * cellSize + cellSize / 2);
@@ -671,11 +1157,12 @@
                 ctx.stroke();
             }
 
-            // Draw line to current animated position
-            if (player.visitedPath.length > 0) {
+            ctx.globalAlpha = 1;
+
+            if (player.visitedPath.length > 0 && !player.finished) {
                 const last = player.visitedPath[player.visitedPath.length - 1];
                 ctx.strokeStyle = color;
-                ctx.lineWidth = 3;
+                ctx.lineWidth = 2;
                 ctx.beginPath();
                 ctx.moveTo(last.x * cellSize + cellSize / 2, last.y * cellSize + cellSize / 2);
                 ctx.lineTo(player.renderX * cellSize + cellSize / 2, player.renderY * cellSize + cellSize / 2);
@@ -683,46 +1170,120 @@
             }
         }
 
-        // Main render function
+        function drawMinimap() {
+            const scale = 3;
+            minimapCanvas.width = mazeWidth * scale;
+            minimapCanvas.height = mazeHeight * scale;
+
+            // Draw maze
+            for (let y = 0; y < mazeHeight; y++) {
+                for (let x = 0; x < mazeWidth; x++) {
+                    if (maze[y][x] === TILE.WALL) {
+                        minimapCtx.fillStyle = '#34495e';
+                    } else {
+                        minimapCtx.fillStyle = '#1a1a2e';
+                    }
+                    minimapCtx.fillRect(x * scale, y * scale, scale, scale);
+                }
+            }
+
+            // Draw exit
+            minimapCtx.fillStyle = '#2ecc71';
+            minimapCtx.fillRect(exitPos.x * scale, exitPos.y * scale, scale, scale);
+
+            // Draw players
+            players.forEach((player, i) => {
+                minimapCtx.fillStyle = COLORS[i];
+                minimapCtx.beginPath();
+                minimapCtx.arc(
+                    player.renderX * scale + scale / 2,
+                    player.renderY * scale + scale / 2,
+                    scale * 0.8,
+                    0, Math.PI * 2
+                );
+                minimapCtx.fill();
+            });
+        }
+
         function render() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             drawMazeBackground();
 
-            // Draw trails first
             players.forEach((player, i) => {
                 drawPathTrail(player, i);
             });
 
-            // Draw players on top
+            drawFog();
+
             players.forEach((player, i) => {
-                drawPlayerSmooth(
-                    player.renderX,
-                    player.renderY,
-                    COLORS[i],
-                    player.name.charAt(0),
-                    player.finished
-                );
+                if (!enableFog || revealedCells.has(`${Math.floor(player.renderX)},${Math.floor(player.renderY)}`)) {
+                    drawPlayer(
+                        player.renderX,
+                        player.renderY,
+                        COLORS[i],
+                        player.name.charAt(0),
+                        player.finished
+                    );
+                }
             });
+
+            drawMinimap();
+            renderParticles();
         }
 
-        // Initialize canvas
+        function updateLiveRankings() {
+            const rankings = players
+                .map((p, i) => ({
+                    name: p.name,
+                    color: COLORS[i],
+                    progress: p.pathIndex / (p.path.length - 1),
+                    finished: p.finished
+                }))
+                .sort((a, b) => b.progress - a.progress);
+
+            const container = document.getElementById('liveRankings');
+            container.innerHTML = rankings.map((p, i) => `
+                <div class="live-rank ${p.finished ? 'finished' : ''}">
+                    <span class="rank-num">${i + 1}</span>
+                    <span class="rank-dot" style="background: ${p.color}"></span>
+                    <span>${p.name}</span>
+                </div>
+            `).join('');
+        }
+
+        // ========== CANVAS INITIALIZATION ==========
         function initCanvas() {
             canvas = document.getElementById('mazeCanvas');
             ctx = canvas.getContext('2d');
+            particleCanvas = document.getElementById('particleCanvas');
+            particleCtx = particleCanvas.getContext('2d');
+            minimapCanvas = document.getElementById('minimapCanvas');
+            minimapCtx = minimapCanvas.getContext('2d');
 
-            const maxSize = Math.min(window.innerWidth - 40, 700);
+            const maxSize = Math.min(window.innerWidth - 30, 700);
             cellSize = Math.floor(maxSize / mazeWidth);
 
             canvas.width = mazeWidth * cellSize;
             canvas.height = mazeHeight * cellSize;
+            particleCanvas.width = canvas.width;
+            particleCanvas.height = canvas.height;
         }
 
-        // Start game
+        // ========== GAME FLOW ==========
         function startGame() {
+            initAudio();
+
             const count = parseInt(document.getElementById('playerCount').value);
+            enableFog = document.getElementById('optFog').checked;
+            enableSpecialTiles = document.getElementById('optSpecial').checked;
+
             players = [];
             finishOrder = [];
             raceStarted = false;
+            particles = [];
+            revealedCells = new Set();
+            portalA = null;
+            portalB = null;
 
             for (let i = 0; i < count; i++) {
                 const input = document.getElementById(`player${i}`);
@@ -743,7 +1304,9 @@
                     animFromX: 0,
                     animFromY: 0,
                     animToX: 0,
-                    animToY: 0
+                    animToY: 0,
+                    speedMultiplier: 1,
+                    speedEffectUntil: 0
                 });
             }
 
@@ -759,40 +1322,103 @@
                 }
                 player.path = findPath(player.x, player.y, exitPos.x, exitPos.y);
                 player.visitedPath = [{ x: player.x, y: player.y }];
+
+                if (enableFog) {
+                    revealArea(player.x, player.y, 2);
+                }
             });
+
+            // Always reveal exit area
+            if (enableFog) {
+                revealArea(exitPos.x, exitPos.y, 1);
+            }
 
             // Create legend
             const legend = document.getElementById('legend');
-            legend.innerHTML = players.map((p, i) => `
+            let legendHTML = players.map((p, i) => `
                 <div class="legend-item">
                     <div class="legend-color" style="background: ${COLORS[i]}"></div>
-                    <span>${p.name} (${p.path.length}칸)</span>
+                    <span>${p.name}</span>
                 </div>
-            `).join('') + `
+            `).join('');
+
+            legendHTML += `
                 <div class="legend-item">
                     <div class="legend-color" style="background: #2ecc71"></div>
                     <span>🚩 출구</span>
                 </div>
             `;
 
+            if (enableSpecialTiles) {
+                legendHTML += `
+                    <div class="legend-item">
+                        <div class="legend-tile" style="background: #27ae60"></div>
+                        <span>⚡ 부스트</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-tile" style="background: #9b59b6"></div>
+                        <span>🐌 슬로우</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-tile" style="background: #3498db"></div>
+                        <span>🌀 포탈</span>
+                    </div>
+                `;
+            }
+
+            legend.innerHTML = legendHTML;
+
             document.getElementById('startRaceBtn').disabled = false;
-            document.getElementById('progressBar').classList.remove('active');
+            document.getElementById('progressFill').style.width = '0%';
+            document.getElementById('mazeTitle').textContent = '🧩 준비 완료!';
+            document.getElementById('mazeSubtitle').textContent = '버튼을 누르면 카운트다운 후 시작됩니다';
 
             showScreen('mazeScreen');
             initCanvas();
+            updateLiveRankings();
             render();
         }
 
-        // Start the race animation
-        function startRace() {
+        async function startCountdown() {
             if (raceStarted) return;
-            raceStarted = true;
 
             document.getElementById('startRaceBtn').disabled = true;
-            document.getElementById('progressBar').classList.add('active');
+            const overlay = document.getElementById('countdownOverlay');
+            const numberEl = document.getElementById('countdownNumber');
+
+            overlay.classList.add('active');
+
+            for (let i = 3; i >= 1; i--) {
+                numberEl.textContent = i;
+                numberEl.style.animation = 'none';
+                numberEl.offsetHeight; // Trigger reflow
+                numberEl.style.animation = 'countdownPop 0.5s ease';
+                playCountdownBeep();
+                await new Promise(r => setTimeout(r, 1000));
+            }
+
+            numberEl.textContent = 'GO!';
+            numberEl.style.color = '#2ecc71';
+            numberEl.style.animation = 'none';
+            numberEl.offsetHeight;
+            numberEl.style.animation = 'countdownPop 0.5s ease';
+            playStartSound();
+
+            await new Promise(r => setTimeout(r, 500));
+
+            overlay.classList.remove('active');
+            numberEl.style.color = '#fff';
+
+            document.getElementById('mazeTitle').textContent = '🏃 레이스 진행 중!';
+            document.getElementById('mazeSubtitle').textContent = '누가 가장 먼저 탈출할까요?';
+
+            startRace();
+        }
+
+        function startRace() {
+            raceStarted = true;
 
             let startTime = performance.now();
-            let maxPathLength = Math.max(...players.map(p => p.path.length));
 
             function gameLoop(currentTime) {
                 const elapsed = currentTime - startTime;
@@ -801,13 +1427,19 @@
                 players.forEach((player, i) => {
                     if (player.finished) return;
 
-                    // Calculate which cell we should be at based on time
+                    // Calculate effective move duration based on speed multiplier
+                    const effectiveDuration = MOVE_DURATION / player.speedMultiplier;
+
+                    // Reset speed effect if expired
+                    if (currentTime > player.speedEffectUntil) {
+                        player.speedMultiplier = 1;
+                    }
+
                     const targetIndex = Math.min(
-                        Math.floor(elapsed / MOVE_DURATION),
+                        Math.floor(elapsed / effectiveDuration),
                         player.path.length - 1
                     );
 
-                    // Start new cell animation if needed
                     if (targetIndex > player.pathIndex && !player.animating) {
                         player.pathIndex++;
                         if (player.pathIndex < player.path.length) {
@@ -821,10 +1453,10 @@
                         }
                     }
 
-                    // Animate current movement
                     if (player.animating) {
+                        const effectiveDur = MOVE_DURATION / player.speedMultiplier;
                         const animElapsed = currentTime - player.animStartTime;
-                        const progress = Math.min(animElapsed / MOVE_DURATION, 1);
+                        const progress = Math.min(animElapsed / effectiveDur, 1);
                         const easedProgress = easeInOutQuad(progress);
 
                         player.renderX = player.animFromX + (player.animToX - player.animFromX) * easedProgress;
@@ -838,11 +1470,56 @@
                             player.animating = false;
                             player.visitedPath.push({ x: player.x, y: player.y });
 
-                            // Check if reached exit
+                            // Reveal fog
+                            if (enableFog) {
+                                revealArea(player.x, player.y, 2);
+                            }
+
+                            // Check special tiles
+                            const tile = maze[player.y][player.x];
+                            if (tile === TILE.BOOST) {
+                                player.speedMultiplier = 1.8;
+                                player.speedEffectUntil = currentTime + 2000;
+                                createParticles(player.x, player.y, '#27ae60', 10);
+                                playBoostSound();
+                            } else if (tile === TILE.SLOW) {
+                                player.speedMultiplier = 0.5;
+                                player.speedEffectUntil = currentTime + 2000;
+                                createParticles(player.x, player.y, '#9b59b6', 10);
+                                playSlowSound();
+                            } else if (tile === TILE.PORTAL_A && portalB) {
+                                // Teleport to portal B
+                                player.x = portalB.x;
+                                player.y = portalB.y;
+                                player.renderX = player.x;
+                                player.renderY = player.y;
+                                createParticles(portalA.x, portalA.y, '#3498db', 15);
+                                createParticles(portalB.x, portalB.y, '#3498db', 15);
+                                playPortalSound();
+                                if (enableFog) revealArea(player.x, player.y, 2);
+                            } else if (tile === TILE.PORTAL_B && portalA) {
+                                // Teleport to portal A
+                                player.x = portalA.x;
+                                player.y = portalA.y;
+                                player.renderX = player.x;
+                                player.renderY = player.y;
+                                createParticles(portalB.x, portalB.y, '#3498db', 15);
+                                createParticles(portalA.x, portalA.y, '#3498db', 15);
+                                playPortalSound();
+                                if (enableFog) revealArea(player.x, player.y, 2);
+                            }
+
+                            // Check finish
                             if (player.x === exitPos.x && player.y === exitPos.y) {
                                 player.finished = true;
                                 player.finishTime = elapsed;
                                 finishOrder.push({ ...player, color: COLORS[i] });
+
+                                createFirework(player.x, player.y);
+                                createFirework(player.x - 2, player.y - 2);
+                                createFirework(player.x + 2, player.y - 2);
+
+                                playFinishSound(finishOrder.length === 1);
                             }
                         }
                     }
@@ -852,28 +1529,33 @@
                     }
                 });
 
-                // Update progress bar
+                // Update progress
                 const avgProgress = players.reduce((sum, p) => {
-                    return sum + (p.pathIndex / (p.path.length - 1));
+                    return sum + (p.pathIndex / Math.max(p.path.length - 1, 1));
                 }, 0) / players.length;
                 document.getElementById('progressFill').style.width = `${avgProgress * 100}%`;
 
+                updateParticles();
+                updateLiveRankings();
                 render();
 
                 if (!allFinished) {
                     animationId = requestAnimationFrame(gameLoop);
                 } else {
-                    // Sort by finish time and show results
-                    setTimeout(showResultScreen, 800);
+                    document.getElementById('mazeTitle').textContent = '🏁 레이스 완료!';
+                    document.getElementById('mazeSubtitle').textContent = '결과를 확인하세요!';
+                    setTimeout(showResultScreen, 1200);
                 }
             }
 
             animationId = requestAnimationFrame(gameLoop);
         }
 
-        // Show result screen
         function showResultScreen() {
             finishOrder.sort((a, b) => a.finishTime - b.finishTime);
+
+            const loserName = finishOrder[finishOrder.length - 1]?.name || '';
+            document.getElementById('resultSubtitle').textContent = `${loserName}님이 벌칙 당첨!`;
 
             const resultList = document.getElementById('resultList');
             resultList.innerHTML = '';
@@ -897,8 +1579,8 @@
                         <div class="player-name">${player.name} ${rank === 0 ? '<span class="winner-crown">👑</span>' : ''}</div>
                         <div class="player-time">거리: ${player.path.length}칸 · 시간: ${timeStr}초</div>
                     </div>
-                    ${isLoser ? '<div class="loser-badge">벌칙!</div>' : ''}
-                    <div class="player-avatar" style="background: ${player.color}"></div>
+                    ${isLoser ? '<div class="loser-badge">🎯 벌칙!</div>' : ''}
+                    <div class="player-avatar" style="background: ${player.color}; color: ${player.color}"></div>
                 `;
 
                 resultList.appendChild(div);
@@ -907,7 +1589,23 @@
             showScreen('resultScreen');
         }
 
-        // Restart game
+        function copyResult() {
+            const lines = ['🏃 미로 탈출 게임 결과 🏃', ''];
+
+            finishOrder.forEach((player, rank) => {
+                const medal = rank === 0 ? '🥇' : rank === 1 ? '🥈' : rank === 2 ? '🥉' : `${rank + 1}.`;
+                const isLoser = rank === finishOrder.length - 1;
+                const timeStr = (player.finishTime / 1000).toFixed(2);
+                lines.push(`${medal} ${player.name} - ${timeStr}초 ${isLoser ? '(벌칙!)' : ''}`);
+            });
+
+            lines.push('', '🎮 미로 탈출 게임으로 벌칙자를 정해보세요!');
+
+            navigator.clipboard.writeText(lines.join('\n')).then(() => {
+                alert('결과가 클립보드에 복사되었습니다!');
+            });
+        }
+
         function restart() {
             if (animationId) {
                 cancelAnimationFrame(animationId);
@@ -915,10 +1613,10 @@
             }
             raceStarted = false;
             finishOrder = [];
+            particles = [];
             showScreen('startScreen');
         }
 
-        // Handle window resize
         window.addEventListener('resize', () => {
             if (document.getElementById('mazeScreen').classList.contains('active')) {
                 initCanvas();
