@@ -3,26 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🏃 미로 탈출 게임</title>
+    <title>미로 탈출 게임</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
-    <button class="sound-toggle" id="soundToggle" onclick="toggleSound()">🔊</button>
+    <button class="sound-toggle" id="soundToggle" onclick="toggleSound()">
+        <i data-lucide="volume-2" id="soundIcon"></i>
+    </button>
     <div class="event-banner" id="eventBanner"></div>
 
     <div class="container">
         <!-- ========== START SCREEN ========== -->
         <div id="startScreen" class="screen active">
-            <h1>🏃 미로 탈출</h1>
+            <div class="logo">
+                <i data-lucide="footprints" class="logo-icon"></i>
+                <h1>미로 탈출</h1>
+            </div>
             <p class="subtitle">가장 늦게 탈출하면 벌칙!</p>
 
             <div class="start-content">
                 <!-- Left Card: Settings -->
                 <div class="card">
-                    <div class="card-title">⚙️ 게임 설정</div>
+                    <div class="card-title">
+                        <i data-lucide="settings"></i>
+                        <span>게임 설정</span>
+                    </div>
 
                     <div class="form-group">
-                        <label>👥 참가 인원</label>
+                        <label><i data-lucide="users" class="label-icon"></i> 참가 인원</label>
                         <select id="playerCount">
                             <option value="2">2명</option>
                             <option value="3">3명</option>
@@ -35,24 +45,20 @@
                     </div>
 
                     <div class="form-group">
-                        <label>✏️ 참가자 이름</label>
+                        <label><i data-lucide="pencil" class="label-icon"></i> 참가자 이름</label>
                         <div id="playerInputs" class="player-inputs"></div>
                     </div>
 
                     <div class="form-group">
-                        <label>🎮 게임 옵션</label>
+                        <label><i data-lucide="gamepad-2" class="label-icon"></i> 게임 옵션</label>
                         <div class="options-grid">
                             <div class="checkbox-group">
                                 <input type="checkbox" id="optFog" checked>
-                                <label for="optFog">🌫️ 안개</label>
+                                <label for="optFog"><i data-lucide="cloud-fog" class="option-icon"></i> 안개</label>
                             </div>
                             <div class="checkbox-group">
                                 <input type="checkbox" id="optSpecial" checked>
-                                <label for="optSpecial">⚡ 아이템</label>
-                            </div>
-                            <div class="checkbox-group">
-                                <input type="checkbox" id="optDynamic" checked>
-                                <label for="optDynamic">🔄 랜덤 생성</label>
+                                <label for="optSpecial"><i data-lucide="sparkles" class="option-icon"></i> 아이템</label>
                             </div>
                         </div>
                     </div>
@@ -60,41 +66,63 @@
 
                 <!-- Right Card: Features -->
                 <div class="card">
-                    <div class="card-title">🎯 아이템 효과</div>
+                    <div class="card-title">
+                        <i data-lucide="target"></i>
+                        <span>아이템 효과</span>
+                    </div>
                     <div class="feature-list">
                         <div class="feature-item">
-                            <div class="feature-icon boost">⚡</div>
+                            <div class="feature-icon boost">
+                                <i data-lucide="zap"></i>
+                            </div>
                             <div class="feature-text">
                                 <h4>부스트</h4>
                                 <p>2.5배 속도 증가</p>
                             </div>
                         </div>
                         <div class="feature-item">
-                            <div class="feature-icon slow">🐌</div>
+                            <div class="feature-icon slow">
+                                <i data-lucide="snail"></i>
+                            </div>
                             <div class="feature-text">
                                 <h4>슬로우</h4>
                                 <p>0.3배 속도 감소</p>
                             </div>
                         </div>
                         <div class="feature-item">
-                            <div class="feature-icon lightning">⚡</div>
+                            <div class="feature-icon lightning">
+                                <i data-lucide="rocket"></i>
+                            </div>
                             <div class="feature-text">
                                 <h4>번개 점프</h4>
                                 <p>8칸 앞으로 순간이동</p>
                             </div>
                         </div>
                         <div class="feature-item">
-                            <div class="feature-icon shuffle">❄️</div>
+                            <div class="feature-icon freeze">
+                                <i data-lucide="snowflake"></i>
+                            </div>
                             <div class="feature-text">
                                 <h4>빙결</h4>
                                 <p>2.5초간 정지</p>
                             </div>
                         </div>
                         <div class="feature-item">
-                            <div class="feature-icon shuffle">↩️</div>
+                            <div class="feature-icon reverse">
+                                <i data-lucide="undo-2"></i>
+                            </div>
                             <div class="feature-text">
                                 <h4>후퇴</h4>
                                 <p>5칸 뒤로 이동</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon portal">
+                                <i data-lucide="rotate-3d"></i>
+                            </div>
+                            <div class="feature-text">
+                                <h4>포탈</h4>
+                                <p>반대편으로 순간이동</p>
                             </div>
                         </div>
                     </div>
@@ -102,7 +130,10 @@
 
                 <!-- Start Button -->
                 <div class="start-btn-container">
-                    <button class="btn btn-primary" onclick="startGame()">🎮 게임 시작</button>
+                    <button class="btn btn-primary" onclick="startGame()">
+                        <i data-lucide="play"></i>
+                        <span>게임 시작</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -113,7 +144,10 @@
                 <!-- Main Area -->
                 <div class="maze-main">
                     <div class="game-status">
-                        <h2 id="gameTitle">🧩 준비 완료!</h2>
+                        <h2 id="gameTitle">
+                            <i data-lucide="puzzle" class="status-icon"></i>
+                            <span>준비 완료!</span>
+                        </h2>
                         <p id="gameSubtitle">레이스 시작 버튼을 누르세요</p>
                     </div>
 
@@ -134,23 +168,35 @@
 
                     <div id="legend" class="legend"></div>
 
-                    <button class="btn btn-secondary" id="startRaceBtn" onclick="startCountdown()">🏁 레이스 시작</button>
+                    <button class="btn btn-secondary" id="startRaceBtn" onclick="startCountdown()">
+                        <i data-lucide="flag"></i>
+                        <span>레이스 시작</span>
+                    </button>
                 </div>
 
                 <!-- Sidebar -->
                 <div class="maze-sidebar">
                     <div class="sidebar-card">
-                        <h3 class="yellow">🏆 실시간 순위</h3>
+                        <h3 class="yellow">
+                            <i data-lucide="trophy"></i>
+                            <span>실시간 순위</span>
+                        </h3>
                         <div id="liveRankings"></div>
                     </div>
 
                     <div class="sidebar-card">
-                        <h3 class="blue">📋 이벤트 로그</h3>
+                        <h3 class="blue">
+                            <i data-lucide="scroll-text"></i>
+                            <span>이벤트 로그</span>
+                        </h3>
                         <div id="eventLog"></div>
                     </div>
 
                     <div class="sidebar-card">
-                        <h3 class="pink">🗺️ 미니맵</h3>
+                        <h3 class="pink">
+                            <i data-lucide="map"></i>
+                            <span>미니맵</span>
+                        </h3>
                         <canvas id="minimapCanvas"></canvas>
                     </div>
                 </div>
@@ -159,42 +205,70 @@
 
         <!-- ========== RESULT SCREEN ========== -->
         <div id="resultScreen" class="screen">
-            <h1>🏆 최종 결과</h1>
+            <div class="result-header">
+                <i data-lucide="trophy" class="result-icon"></i>
+                <h1>최종 결과</h1>
+            </div>
             <p class="subtitle" id="resultSubtitle">순위가 결정되었습니다!</p>
 
             <div class="result-content">
                 <!-- Rankings -->
                 <div class="card">
-                    <div class="card-title">📊 순위</div>
+                    <div class="card-title">
+                        <i data-lucide="bar-chart-3"></i>
+                        <span>순위</span>
+                    </div>
                     <div id="resultList" class="result-list"></div>
                 </div>
 
                 <!-- Stats -->
                 <div class="card stats-card">
-                    <div class="card-title">📈 게임 통계</div>
+                    <div class="card-title">
+                        <i data-lucide="trending-up"></i>
+                        <span>게임 통계</span>
+                    </div>
                     <div class="stat-item">
-                        <span class="stat-label">총 게임 시간</span>
+                        <span class="stat-label">
+                            <i data-lucide="clock" class="stat-icon"></i>
+                            총 게임 시간
+                        </span>
                         <span class="stat-value" id="statTotalTime">0초</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-label">사용된 아이템</span>
+                        <span class="stat-label">
+                            <i data-lucide="package" class="stat-icon"></i>
+                            사용된 아이템
+                        </span>
                         <span class="stat-value" id="statTotalItems">0개</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-label">역전 이벤트</span>
+                        <span class="stat-label">
+                            <i data-lucide="repeat" class="stat-icon"></i>
+                            역전 이벤트
+                        </span>
                         <span class="stat-value" id="statReversals">0회</span>
                     </div>
                 </div>
 
                 <!-- Share & Restart -->
                 <div class="share-section">
-                    <button class="btn-share copy" onclick="copyResult()">📋 결과 복사</button>
-                    <button class="btn btn-primary" onclick="restart()" style="max-width: 300px;">🔄 다시 하기</button>
+                    <button class="btn-share copy" onclick="copyResult()">
+                        <i data-lucide="clipboard-copy"></i>
+                        <span>결과 복사</span>
+                    </button>
+                    <button class="btn btn-primary" onclick="restart()" style="max-width: 300px;">
+                        <i data-lucide="rotate-ccw"></i>
+                        <span>다시 하기</span>
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
     <script src="main.js"></script>
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+    </script>
 </body>
 </html>

@@ -12,6 +12,57 @@ body {
     overflow-x: hidden;
 }
 
+/* ========== LUCIDE ICONS ========== */
+[data-lucide] {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2;
+}
+
+.logo-icon {
+    width: 48px !important;
+    height: 48px !important;
+    color: #feca57;
+    filter: drop-shadow(0 0 10px rgba(254, 202, 87, 0.5));
+}
+
+.label-icon {
+    width: 16px !important;
+    height: 16px !important;
+    vertical-align: middle;
+    margin-right: 4px;
+    opacity: 0.8;
+}
+
+.option-icon {
+    width: 16px !important;
+    height: 16px !important;
+    vertical-align: middle;
+    margin-right: 2px;
+}
+
+.status-icon {
+    width: 24px !important;
+    height: 24px !important;
+    vertical-align: middle;
+    margin-right: 6px;
+}
+
+.stat-icon {
+    width: 16px !important;
+    height: 16px !important;
+    vertical-align: middle;
+    margin-right: 6px;
+    opacity: 0.7;
+}
+
+.result-icon {
+    width: 56px !important;
+    height: 56px !important;
+    color: #feca57;
+    filter: drop-shadow(0 0 15px rgba(254, 202, 87, 0.6));
+}
+
 /* ========== CONTAINER ========== */
 .container {
     max-width: 1200px;
@@ -24,10 +75,24 @@ body {
     justify-content: center;
 }
 
+/* ========== LOGO ========== */
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 5px;
+}
+
+.result-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 5px;
+}
+
 /* ========== TYPOGRAPHY ========== */
 h1 {
     font-size: 2.2rem;
-    margin-bottom: 5px;
     background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -92,12 +157,18 @@ h1 {
     gap: 8px;
 }
 
+.card-title [data-lucide] {
+    width: 22px;
+    height: 22px;
+}
+
 .form-group {
     margin-bottom: 15px;
 }
 
 label {
-    display: block;
+    display: flex;
+    align-items: center;
     margin-bottom: 8px;
     font-weight: 600;
     color: #e0e0e0;
@@ -184,6 +255,9 @@ select option {
     margin: 0;
     cursor: pointer;
     font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
 /* Feature List */
@@ -208,20 +282,43 @@ select option {
 }
 
 .feature-icon {
-    font-size: 1.5rem;
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 10px;
 }
 
-.feature-icon.boost { background: rgba(39, 174, 96, 0.3); }
-.feature-icon.slow { background: rgba(155, 89, 182, 0.3); }
-.feature-icon.portal { background: rgba(52, 152, 219, 0.3); }
-.feature-icon.lightning { background: rgba(241, 196, 15, 0.3); }
-.feature-icon.shuffle { background: rgba(231, 76, 60, 0.3); }
+.feature-icon [data-lucide] {
+    width: 24px;
+    height: 24px;
+}
+
+.feature-icon.boost {
+    background: rgba(39, 174, 96, 0.3);
+    color: #2ecc71;
+}
+.feature-icon.slow {
+    background: rgba(155, 89, 182, 0.3);
+    color: #9b59b6;
+}
+.feature-icon.portal {
+    background: rgba(52, 152, 219, 0.3);
+    color: #3498db;
+}
+.feature-icon.lightning {
+    background: rgba(241, 196, 15, 0.3);
+    color: #f1c40f;
+}
+.feature-icon.freeze {
+    background: rgba(0, 206, 201, 0.3);
+    color: #00cec9;
+}
+.feature-icon.reverse {
+    background: rgba(231, 76, 60, 0.3);
+    color: #e74c3c;
+}
 
 .feature-text h4 {
     font-size: 0.95rem;
@@ -245,6 +342,15 @@ select option {
     transition: all 0.3s ease;
     text-transform: uppercase;
     letter-spacing: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btn [data-lucide] {
+    width: 22px;
+    height: 22px;
 }
 
 .btn-primary {
@@ -318,6 +424,10 @@ select option {
 .game-status h2 {
     font-size: 1.1rem;
     color: #feca57;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
 }
 
 .game-status p {
@@ -388,7 +498,15 @@ select option {
 .sidebar-card h3 {
     font-size: 0.9rem;
     margin-bottom: 10px;
-    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.sidebar-card h3 [data-lucide] {
+    width: 18px;
+    height: 18px;
 }
 
 .sidebar-card h3.yellow { color: #feca57; }
@@ -687,6 +805,8 @@ select option {
 .stat-label {
     color: #a0a0a0;
     font-size: 0.85rem;
+    display: flex;
+    align-items: center;
 }
 
 .stat-value {
@@ -718,6 +838,11 @@ select option {
     color: #fff;
 }
 
+.btn-share [data-lucide] {
+    width: 18px;
+    height: 18px;
+}
+
 .btn-share.copy {
     background: #6c757d;
 }
@@ -741,6 +866,14 @@ select option {
     cursor: pointer;
     transition: all 0.3s;
     z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sound-toggle [data-lucide] {
+    width: 22px;
+    height: 22px;
 }
 
 .sound-toggle:hover {
@@ -786,5 +919,7 @@ select option {
     .countdown-number { font-size: 4rem; }
     .result-item { padding: 12px; }
     .result-rank { font-size: 1.3rem; min-width: 35px; }
-    .feature-list { display: none; }
+    .feature-list { gap: 8px; }
+    .feature-item { padding: 10px; }
+    .logo-icon { width: 36px !important; height: 36px !important; }
 }

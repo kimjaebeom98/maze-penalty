@@ -6,18 +6,17 @@ const COLORS = [
 
 const MAZE_SIZE = 35;
 const MOVE_DURATION = 80;
-const DYNAMIC_TILE_INTERVAL = 4000; // 4초마다 특수 타일 변경
 
 // Tile types
 const TILE = {
     WALL: 1,
     PATH: 0,
-    BOOST: 2,      // 2배 속도
+    BOOST: 2,      // 2.5배 속도
     SLOW: 3,       // 0.3배 속도
     PORTAL_A: 4,
     PORTAL_B: 5,
     LIGHTNING: 6,  // 8칸 점프
-    FREEZE: 7,     // 2초 정지
+    FREEZE: 7,     // 2.5초 정지
     REVERSE: 8     // 5칸 후퇴
 };
 
@@ -29,11 +28,9 @@ let mazeHeight = MAZE_SIZE;
 let cellSize = 18;
 let exitPos = { x: 0, y: 0 };
 let portalA = null, portalB = null;
-let dynamicTiles = [];
 
 let canvas, ctx, particleCanvas, particleCtx, minimapCanvas, minimapCtx;
 let animationId = null;
-let dynamicTileTimer = null;
 let raceStarted = false;
 let raceStartTime = 0;
 let finishOrder = [];
@@ -45,7 +42,6 @@ let gameStats = { boosts: 0, slows: 0, portals: 0, lightnings: 0, freezes: 0, re
 // Options
 let enableFog = true;
 let enableSpecialTiles = true;
-let enableDynamicTiles = true;
 let soundEnabled = true;
 
 // Audio
@@ -91,13 +87,18 @@ function playPortalSound() { playTone(400, 0.1, 'sine', 0.3); setTimeout(() => p
 function playLightningSound() { playTone(1200, 0.1, 'sine', 0.4); setTimeout(() => playTone(1500, 0.15, 'sine', 0.4), 50); }
 function playFreezeSound() { playTone(150, 0.3, 'sine', 0.3); }
 function playReverseSound() { playTone(300, 0.1, 'sawtooth', 0.3); setTimeout(() => playTone(200, 0.2, 'sawtooth', 0.3), 100); }
-function playNewTileSound() { playTone(600, 0.1, 'triangle', 0.2); }
+function playItemCollectSound() { playTone(600, 0.1, 'triangle', 0.2); }
 
 function toggleSound() {
     soundEnabled = !soundEnabled;
     const btn = document.getElementById('soundToggle');
-    btn.textContent = soundEnabled ? '🔊' : '🔇';
+    const icon = document.getElementById('soundIcon');
     btn.classList.toggle('muted', !soundEnabled);
+    // Update icon
+    if (icon) {
+        icon.setAttribute('data-lucide', soundEnabled ? 'volume-2' : 'volume-x');
+        lucide.createIcons();
+    }
 }
 
 // ========== PARTICLE SYSTEM ==========
@@ -207,6 +208,8 @@ function initPlayerInputs() {
 function showScreen(screenId) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(screenId).classList.add('active');
+    // Re-initialize icons after screen change
+    setTimeout(() => lucide.createIcons(), 50);
 }
 
 // ========== MAZE GENERATION ==========
@@ -252,7 +255,7 @@ function generateMaze() {
     exitPos = { x: mazeWidth - 2, y: mazeHeight - 2 };
     maze[exitPos.y][exitPos.x] = TILE.PATH;
 
-    if (enableSpecialTiles) addInitialSpecialTiles();
+    if (enableSpecialTiles) addSpecialTiles();
 }
 
 function getPathCells() {
@@ -260,15 +263,19 @@ function getPathCells() {
     for (let y = 1; y < mazeHeight - 1; y++) {
         for (let x = 1; x < mazeWidth - 1; x++) {
             if (maze[y][x] === TILE.PATH && !(x === exitPos.x && y === exitPos.y)) {
-                cells.push({ x, y });
+                // Exclude starting area (top-left corner area)
+                if (!(x < 5 && y < 5)) {
+                    cells.push({ x, y });
+                }
             }
         }
     }
     return cells;
 }
 
-function addInitialSpecialTiles() {
+function addSpecialTiles() {
     const pathCells = getPathCells();
+    // Shuffle path cells
     for (let i = pathCells.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [pathCells[i], pathCells[j]] = [pathCells[j], pathCells[i]];
@@ -276,75 +283,29 @@ function addInitialSpecialTiles() {
 
     let idx = 0;
 
-    // Initial tiles
-    for (let i = 0; i < 3 && idx < pathCells.length; i++, idx++) {
-        maze[pathCells[idx].y][pathCells[idx].x] = TILE.BOOST;
-    }
-    for (let i = 0; i < 3 && idx < pathCells.length; i++, idx++) {
-        maze[pathCells[idx].y][pathCells[idx].x] = TILE.SLOW;
-    }
-    for (let i = 0; i < 2 && idx < pathCells.length; i++, idx++) {
-        maze[pathCells[idx].y][pathCells[idx].x] = TILE.LIGHTNING;
-    }
-    for (let i = 0; i < 2 && idx < pathCells.length; i++, idx++) {
-        maze[pathCells[idx].y][pathCells[idx].x] = TILE.FREEZE;
-    }
-    for (let i = 0; i < 2 && idx < pathCells.length; i++, idx++) {
-        maze[pathCells[idx].y][pathCells[idx].x] = TILE.REVERSE;
+    // Place items - one-time placement at game start
+    // Balanced distribution
+    const itemConfig = [
+        { type: TILE.BOOST, count: 4 },      // 좋은 아이템
+        { type: TILE.SLOW, count: 4 },       // 나쁜 아이템
+        { type: TILE.LIGHTNING, count: 2 },  // 강력한 좋은 아이템
+        { type: TILE.FREEZE, count: 3 },     // 나쁜 아이템
+        { type: TILE.REVERSE, count: 3 }     // 나쁜 아이템
+    ];
+
+    for (const item of itemConfig) {
+        for (let i = 0; i < item.count && idx < pathCells.length; i++, idx++) {
+            maze[pathCells[idx].y][pathCells[idx].x] = item.type;
+        }
     }
 
-    // Portals
+    // Place portals (neutral - can be good or bad)
     if (idx + 1 < pathCells.length) {
         portalA = pathCells[idx];
         portalB = pathCells[idx + 1];
         maze[portalA.y][portalA.x] = TILE.PORTAL_A;
         maze[portalB.y][portalB.x] = TILE.PORTAL_B;
     }
-}
-
-function spawnDynamicTiles() {
-    if (!enableDynamicTiles || !raceStarted) return;
-
-    // Clear old dynamic tiles
-    dynamicTiles.forEach(t => {
-        if (maze[t.y][t.x] === t.type) {
-            maze[t.y][t.x] = TILE.PATH;
-        }
-    });
-    dynamicTiles = [];
-
-    const pathCells = getPathCells();
-    if (pathCells.length < 5) return;
-
-    // Shuffle
-    for (let i = pathCells.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [pathCells[i], pathCells[j]] = [pathCells[j], pathCells[i]];
-    }
-
-    // Spawn new tiles
-    const tileTypes = [TILE.BOOST, TILE.SLOW, TILE.LIGHTNING, TILE.FREEZE, TILE.REVERSE];
-    const count = 3 + Math.floor(Math.random() * 3);
-
-    for (let i = 0; i < count && i < pathCells.length; i++) {
-        const type = tileTypes[Math.floor(Math.random() * tileTypes.length)];
-        const cell = pathCells[i];
-
-        // Don't place on player positions
-        const onPlayer = players.some(p =>
-            Math.floor(p.renderX) === cell.x && Math.floor(p.renderY) === cell.y
-        );
-
-        if (!onPlayer && maze[cell.y][cell.x] === TILE.PATH) {
-            maze[cell.y][cell.x] = type;
-            dynamicTiles.push({ x: cell.x, y: cell.y, type });
-            createParticles(cell.x, cell.y, getTileColor(type), 8);
-        }
-    }
-
-    playNewTileSound();
-    showEventBanner('⚡ 새로운 아이템 등장!');
-    addEventLog('새로운 아이템들이 나타났다!');
 }
 
 // ========== PATHFINDING ==========
@@ -433,17 +394,90 @@ function getTileColor(tile) {
     }
 }
 
-function getTileIcon(tile) {
+function drawTileIcon(ctx, tile, x, y, size) {
+    ctx.save();
+    ctx.fillStyle = '#fff';
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 1.5;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    const cx = x + size / 2;
+    const cy = y + size / 2;
+    const iconSize = size * 0.5;
+
     switch (tile) {
-        case TILE.BOOST: return '⚡';
-        case TILE.SLOW: return '🐌';
+        case TILE.BOOST: // Zap icon
+            ctx.beginPath();
+            ctx.moveTo(cx + iconSize * 0.1, cy - iconSize * 0.4);
+            ctx.lineTo(cx - iconSize * 0.2, cy + iconSize * 0.05);
+            ctx.lineTo(cx + iconSize * 0.05, cy + iconSize * 0.05);
+            ctx.lineTo(cx - iconSize * 0.1, cy + iconSize * 0.4);
+            ctx.lineTo(cx + iconSize * 0.2, cy - iconSize * 0.05);
+            ctx.lineTo(cx - iconSize * 0.05, cy - iconSize * 0.05);
+            ctx.closePath();
+            ctx.fill();
+            break;
+
+        case TILE.SLOW: // Snail icon (simplified)
+            ctx.beginPath();
+            ctx.arc(cx, cy, iconSize * 0.35, 0, Math.PI, true);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(cx - iconSize * 0.1, cy, iconSize * 0.2, 0, Math.PI * 2);
+            ctx.stroke();
+            break;
+
         case TILE.PORTAL_A:
-        case TILE.PORTAL_B: return '🌀';
-        case TILE.LIGHTNING: return '⚡';
-        case TILE.FREEZE: return '❄️';
-        case TILE.REVERSE: return '↩️';
-        default: return '';
+        case TILE.PORTAL_B: // Rotate icon
+            ctx.beginPath();
+            ctx.arc(cx, cy, iconSize * 0.3, 0, Math.PI * 1.5);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(cx + iconSize * 0.1, cy - iconSize * 0.4);
+            ctx.lineTo(cx + iconSize * 0.3, cy - iconSize * 0.25);
+            ctx.lineTo(cx, cy - iconSize * 0.25);
+            ctx.fill();
+            break;
+
+        case TILE.LIGHTNING: // Rocket icon
+            ctx.beginPath();
+            ctx.moveTo(cx, cy - iconSize * 0.4);
+            ctx.lineTo(cx + iconSize * 0.2, cy + iconSize * 0.2);
+            ctx.lineTo(cx, cy + iconSize * 0.1);
+            ctx.lineTo(cx - iconSize * 0.2, cy + iconSize * 0.2);
+            ctx.closePath();
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(cx - iconSize * 0.15, cy + iconSize * 0.25);
+            ctx.lineTo(cx, cy + iconSize * 0.4);
+            ctx.lineTo(cx + iconSize * 0.15, cy + iconSize * 0.25);
+            ctx.stroke();
+            break;
+
+        case TILE.FREEZE: // Snowflake icon
+            for (let i = 0; i < 6; i++) {
+                const angle = (Math.PI / 3) * i;
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(cx + Math.cos(angle) * iconSize * 0.35, cy + Math.sin(angle) * iconSize * 0.35);
+                ctx.stroke();
+            }
+            break;
+
+        case TILE.REVERSE: // Undo icon
+            ctx.beginPath();
+            ctx.arc(cx + iconSize * 0.1, cy, iconSize * 0.25, Math.PI * 0.5, Math.PI * 1.5, true);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(cx - iconSize * 0.15, cy - iconSize * 0.35);
+            ctx.lineTo(cx - iconSize * 0.35, cy - iconSize * 0.15);
+            ctx.lineTo(cx - iconSize * 0.05, cy - iconSize * 0.15);
+            ctx.fill();
+            break;
     }
+
+    ctx.restore();
 }
 
 function drawMazeBackground() {
@@ -467,14 +501,9 @@ function drawMazeBackground() {
 
             ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
 
-            // Draw tile icons
-            const icon = getTileIcon(tile);
-            if (icon && tile !== TILE.PATH && tile !== TILE.WALL) {
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-                ctx.font = `${cellSize * 0.55}px sans-serif`;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText(icon, x * cellSize + cellSize / 2, y * cellSize + cellSize / 2);
+            // Draw tile icons using canvas
+            if (tile !== TILE.PATH && tile !== TILE.WALL) {
+                drawTileIcon(ctx, tile, x * cellSize, y * cellSize, cellSize);
             }
         }
     }
@@ -487,10 +516,22 @@ function drawMazeBackground() {
     ctx.arc(exitPos.x * cellSize + cellSize / 2, exitPos.y * cellSize + cellSize / 2, cellSize / 2 - 2, 0, Math.PI * 2);
     ctx.fill();
     ctx.shadowBlur = 0;
-    ctx.font = `${cellSize - 4}px serif`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('🚩', exitPos.x * cellSize + cellSize / 2, exitPos.y * cellSize + cellSize / 2);
+
+    // Flag icon for exit
+    ctx.fillStyle = '#fff';
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    const ex = exitPos.x * cellSize + cellSize * 0.35;
+    const ey = exitPos.y * cellSize + cellSize * 0.25;
+    ctx.beginPath();
+    ctx.moveTo(ex, ey);
+    ctx.lineTo(ex, ey + cellSize * 0.5);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(ex, ey);
+    ctx.lineTo(ex + cellSize * 0.35, ey + cellSize * 0.15);
+    ctx.lineTo(ex, ey + cellSize * 0.3);
+    ctx.fill();
 }
 
 function drawFog() {
@@ -538,9 +579,17 @@ function drawPlayer(x, y, color, initial, isFinished, isFrozen) {
     ctx.fillText(initial.toUpperCase(), px, py);
 
     if (isFrozen) {
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-        ctx.font = `${cellSize * 0.4}px sans-serif`;
-        ctx.fillText('❄️', px, py - cellSize * 0.5);
+        // Draw snowflake above player
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 1;
+        const fy = py - cellSize * 0.6;
+        for (let i = 0; i < 6; i++) {
+            const angle = (Math.PI / 3) * i;
+            ctx.beginPath();
+            ctx.moveTo(px, fy);
+            ctx.lineTo(px + Math.cos(angle) * 4, fy + Math.sin(angle) * 4);
+            ctx.stroke();
+        }
     }
 }
 
@@ -622,7 +671,7 @@ function updateLiveRankings() {
         <div class="live-rank ${p.finished ? 'finished' : ''} ${i === 0 && !p.finished ? 'leading' : ''}">
             <span class="rank-num">${i + 1}</span>
             <span class="rank-dot" style="background: ${p.color}"></span>
-            <span class="rank-name">${p.name}${p.frozen ? ' ❄️' : ''}</span>
+            <span class="rank-name">${p.name}${p.frozen ? ' ❄' : ''}</span>
             <span class="rank-progress">${Math.floor(p.progress * 100)}%</span>
         </div>
     `).join('');
@@ -660,7 +709,6 @@ function startGame() {
     const count = parseInt(document.getElementById('playerCount').value);
     enableFog = document.getElementById('optFog').checked;
     enableSpecialTiles = document.getElementById('optSpecial').checked;
-    enableDynamicTiles = document.getElementById('optDynamic').checked;
 
     players = [];
     finishOrder = [];
@@ -668,7 +716,6 @@ function startGame() {
     particles = [];
     revealedCells = new Set();
     eventLog = [];
-    dynamicTiles = [];
     gameStats = { boosts: 0, slows: 0, portals: 0, lightnings: 0, freezes: 0, reverses: 0 };
     portalA = null;
     portalB = null;
@@ -708,7 +755,7 @@ function startGame() {
 
     document.getElementById('startRaceBtn').disabled = false;
     document.getElementById('progressFill').style.width = '0%';
-    document.getElementById('gameTitle').textContent = '🧩 준비 완료!';
+    document.getElementById('gameTitle').innerHTML = '<i data-lucide="puzzle" class="status-icon"></i><span>준비 완료!</span>';
     document.getElementById('gameSubtitle').textContent = '레이스 시작 버튼을 누르세요';
 
     showScreen('mazeScreen');
@@ -726,16 +773,16 @@ function updateLegend() {
         </div>
     `).join('');
 
-    html += `<div class="legend-item"><div class="legend-color" style="background: #2ecc71"></div><span>🚩 출구</span></div>`;
+    html += `<div class="legend-item"><div class="legend-color" style="background: #2ecc71"></div><span>출구</span></div>`;
 
     if (enableSpecialTiles) {
         html += `
-            <div class="legend-item"><div class="legend-tile" style="background: #27ae60"></div><span>⚡ 부스트</span></div>
-            <div class="legend-item"><div class="legend-tile" style="background: #9b59b6"></div><span>🐌 슬로우</span></div>
-            <div class="legend-item"><div class="legend-tile" style="background: #f1c40f"></div><span>⚡ 점프</span></div>
-            <div class="legend-item"><div class="legend-tile" style="background: #00cec9"></div><span>❄️ 정지</span></div>
-            <div class="legend-item"><div class="legend-tile" style="background: #e74c3c"></div><span>↩️ 후퇴</span></div>
-            <div class="legend-item"><div class="legend-tile" style="background: #3498db"></div><span>🌀 포탈</span></div>
+            <div class="legend-item"><div class="legend-tile" style="background: #27ae60"></div><span>부스트</span></div>
+            <div class="legend-item"><div class="legend-tile" style="background: #9b59b6"></div><span>슬로우</span></div>
+            <div class="legend-item"><div class="legend-tile" style="background: #f1c40f"></div><span>점프</span></div>
+            <div class="legend-item"><div class="legend-tile" style="background: #00cec9"></div><span>빙결</span></div>
+            <div class="legend-item"><div class="legend-tile" style="background: #e74c3c"></div><span>후퇴</span></div>
+            <div class="legend-item"><div class="legend-tile" style="background: #3498db"></div><span>포탈</span></div>
         `;
     }
 
@@ -772,8 +819,9 @@ async function startCountdown() {
     overlay.classList.remove('active');
     numberEl.style.color = '#fff';
 
-    document.getElementById('gameTitle').textContent = '🏃 레이스 진행 중!';
+    document.getElementById('gameTitle').innerHTML = '<i data-lucide="zap" class="status-icon"></i><span>레이스 진행 중!</span>';
     document.getElementById('gameSubtitle').textContent = '누가 먼저 탈출할까요?';
+    lucide.createIcons();
 
     startRace();
 }
@@ -781,11 +829,6 @@ async function startCountdown() {
 function startRace() {
     raceStarted = true;
     raceStartTime = performance.now();
-
-    // Start dynamic tile spawning
-    if (enableDynamicTiles) {
-        dynamicTileTimer = setInterval(spawnDynamicTiles, DYNAMIC_TILE_INTERVAL);
-    }
 
     function gameLoop(currentTime) {
         const elapsed = currentTime - raceStartTime;
@@ -876,9 +919,9 @@ function startRace() {
         if (!allFinished) {
             animationId = requestAnimationFrame(gameLoop);
         } else {
-            if (dynamicTileTimer) clearInterval(dynamicTileTimer);
-            document.getElementById('gameTitle').textContent = '🏁 레이스 완료!';
+            document.getElementById('gameTitle').innerHTML = '<i data-lucide="flag" class="status-icon"></i><span>레이스 완료!</span>';
             document.getElementById('gameSubtitle').textContent = '결과를 확인하세요';
+            lucide.createIcons();
             setTimeout(showResultScreen, 1200);
         }
     }
@@ -895,9 +938,10 @@ function handleTileEffect(player, tile, playerIndex, currentTime) {
             player.speedEffectUntil = currentTime + 3000;
             createParticles(player.x, player.y, '#27ae60', 15);
             playBoostSound();
-            addEventLog(`${name} 부스트! 🚀`);
+            addEventLog(`${name} 부스트!`);
+            showEventBanner(`${name} 부스트!`);
             gameStats.boosts++;
-            maze[player.y][player.x] = TILE.PATH;
+            maze[player.y][player.x] = TILE.PATH; // Remove item after use
             break;
 
         case TILE.SLOW:
@@ -905,7 +949,8 @@ function handleTileEffect(player, tile, playerIndex, currentTime) {
             player.speedEffectUntil = currentTime + 3000;
             createParticles(player.x, player.y, '#9b59b6', 15);
             playSlowSound();
-            addEventLog(`${name} 슬로우... 🐌`);
+            addEventLog(`${name} 슬로우...`);
+            showEventBanner(`${name} 슬로우!`);
             gameStats.slows++;
             maze[player.y][player.x] = TILE.PATH;
             break;
@@ -925,7 +970,8 @@ function handleTileEffect(player, tile, playerIndex, currentTime) {
             }
             createParticles(player.x, player.y, '#f1c40f', 25);
             playLightningSound();
-            addEventLog(`${name} 번개 점프! ⚡`);
+            addEventLog(`${name} 번개 점프!`);
+            showEventBanner(`${name} 번개 점프!`);
             gameStats.lightnings++;
             maze[player.y][player.x] = TILE.PATH;
             break;
@@ -935,7 +981,8 @@ function handleTileEffect(player, tile, playerIndex, currentTime) {
             player.frozenUntil = currentTime + 2500;
             createParticles(player.x, player.y, '#00cec9', 20);
             playFreezeSound();
-            addEventLog(`${name} 빙결! ❄️`);
+            addEventLog(`${name} 빙결!`);
+            showEventBanner(`${name} 빙결!`);
             gameStats.freezes++;
             maze[player.y][player.x] = TILE.PATH;
             break;
@@ -953,7 +1000,8 @@ function handleTileEffect(player, tile, playerIndex, currentTime) {
             }
             createParticles(player.x, player.y, '#e74c3c', 20);
             playReverseSound();
-            addEventLog(`${name} 후퇴! ↩️`);
+            addEventLog(`${name} 후퇴!`);
+            showEventBanner(`${name} 후퇴!`);
             gameStats.reverses++;
             maze[player.y][player.x] = TILE.PATH;
             break;
@@ -968,7 +1016,7 @@ function handleTileEffect(player, tile, playerIndex, currentTime) {
                 createParticles(portalB.x, portalB.y, '#3498db', 15);
                 playPortalSound();
                 if (enableFog) revealArea(player.x, player.y, 2);
-                addEventLog(`${name} 포탈 이동! 🌀`);
+                addEventLog(`${name} 포탈 이동!`);
                 gameStats.portals++;
             }
             break;
@@ -983,7 +1031,7 @@ function handleTileEffect(player, tile, playerIndex, currentTime) {
                 createParticles(portalA.x, portalA.y, '#3498db', 15);
                 playPortalSound();
                 if (enableFog) revealArea(player.x, player.y, 2);
-                addEventLog(`${name} 포탈 이동! 🌀`);
+                addEventLog(`${name} 포탈 이동!`);
                 gameStats.portals++;
             }
             break;
@@ -994,7 +1042,7 @@ function showResultScreen() {
     finishOrder.sort((a, b) => a.finishTime - b.finishTime);
 
     const loserName = finishOrder[finishOrder.length - 1]?.name || '';
-    document.getElementById('resultSubtitle').textContent = `${loserName}님이 벌칙 당첨! 🎯`;
+    document.getElementById('resultSubtitle').textContent = `${loserName}님이 벌칙 당첨!`;
 
     const resultList = document.getElementById('resultList');
     resultList.innerHTML = '';
@@ -1019,7 +1067,7 @@ function showResultScreen() {
                 <div class="player-name">${player.name} ${isWinner ? '<span class="winner-crown">👑</span>' : ''}</div>
                 <div class="player-time">거리: ${player.path.length}칸 · 시간: ${timeStr}초</div>
             </div>
-            ${isLoser ? '<div class="loser-badge">🎯 벌칙!</div>' : ''}
+            ${isLoser ? '<div class="loser-badge">벌칙!</div>' : ''}
             <div class="player-avatar" style="background: ${player.color}"></div>
         `;
 
@@ -1037,7 +1085,7 @@ function showResultScreen() {
 }
 
 function copyResult() {
-    const lines = ['🏃 미로 탈출 게임 결과 🏃', ''];
+    const lines = ['미로 탈출 게임 결과', ''];
 
     finishOrder.forEach((player, rank) => {
         const medal = rank === 0 ? '🥇' : rank === 1 ? '🥈' : rank === 2 ? '🥉' : `${rank + 1}.`;
@@ -1046,7 +1094,7 @@ function copyResult() {
         lines.push(`${medal} ${player.name} - ${timeStr}초 ${isLoser ? '(벌칙!)' : ''}`);
     });
 
-    lines.push('', '🎮 미로 탈출 게임으로 벌칙자를 정해보세요!');
+    lines.push('', '미로 탈출 게임으로 벌칙자를 정해보세요!');
 
     navigator.clipboard.writeText(lines.join('\n')).then(() => {
         alert('결과가 클립보드에 복사되었습니다!');
@@ -1057,10 +1105,6 @@ function restart() {
     if (animationId) {
         cancelAnimationFrame(animationId);
         animationId = null;
-    }
-    if (dynamicTileTimer) {
-        clearInterval(dynamicTileTimer);
-        dynamicTileTimer = null;
     }
     raceStarted = false;
     finishOrder = [];
