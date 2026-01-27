@@ -3,15 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>미로 탈출 게임</title>
+    <title>Maze Penalty - 미로 탈출 게임</title>
+    <meta name="description" content="Fun party game to decide who pays! Maze escape penalty game for friends. 친구들과 함께하는 벌칙 게임!">
+    <meta name="keywords" content="maze game, penalty game, party game, drinking game, 미로 게임, 벌칙 게임, 내기 게임, 사다리 게임">
     <link rel="stylesheet" href="style.css">
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
-    <button class="sound-toggle" id="soundToggle" onclick="toggleSound()">
-        <i data-lucide="volume-2" id="soundIcon"></i>
-    </button>
+    <div class="top-controls">
+        <button class="control-btn" id="langToggle" onclick="toggleLanguage()">
+            <i data-lucide="languages" id="langIcon"></i>
+            <span id="langText">EN</span>
+        </button>
+        <button class="control-btn" id="soundToggle" onclick="toggleSound()">
+            <i data-lucide="volume-2" id="soundIcon"></i>
+        </button>
+    </div>
     <div class="event-banner" id="eventBanner"></div>
 
     <div class="container">
@@ -19,46 +27,46 @@
         <div id="startScreen" class="screen active">
             <div class="logo">
                 <i data-lucide="footprints" class="logo-icon"></i>
-                <h1>미로 탈출</h1>
+                <h1 data-i18n="title">Maze Penalty</h1>
             </div>
-            <p class="subtitle">가장 늦게 탈출하면 벌칙!</p>
+            <p class="subtitle" data-i18n="subtitle">Last one out gets the penalty!</p>
 
             <div class="start-content">
                 <!-- Left Card: Settings -->
                 <div class="card">
                     <div class="card-title">
                         <i data-lucide="settings"></i>
-                        <span>게임 설정</span>
+                        <span data-i18n="gameSettings">Game Settings</span>
                     </div>
 
                     <div class="form-group">
-                        <label><i data-lucide="users" class="label-icon"></i> 참가 인원</label>
+                        <label><i data-lucide="users" class="label-icon"></i> <span data-i18n="playerCount">Players</span></label>
                         <select id="playerCount">
-                            <option value="2">2명</option>
-                            <option value="3">3명</option>
-                            <option value="4" selected>4명</option>
-                            <option value="5">5명</option>
-                            <option value="6">6명</option>
-                            <option value="7">7명</option>
-                            <option value="8">8명</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4" selected>4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label><i data-lucide="pencil" class="label-icon"></i> 참가자 이름</label>
+                        <label><i data-lucide="pencil" class="label-icon"></i> <span data-i18n="playerNames">Player Names</span></label>
                         <div id="playerInputs" class="player-inputs"></div>
                     </div>
 
                     <div class="form-group">
-                        <label><i data-lucide="gamepad-2" class="label-icon"></i> 게임 옵션</label>
+                        <label><i data-lucide="gamepad-2" class="label-icon"></i> <span data-i18n="gameOptions">Game Options</span></label>
                         <div class="options-grid">
                             <div class="checkbox-group">
                                 <input type="checkbox" id="optFog" checked>
-                                <label for="optFog"><i data-lucide="cloud-fog" class="option-icon"></i> 안개</label>
+                                <label for="optFog"><i data-lucide="cloud-fog" class="option-icon"></i> <span data-i18n="fog">Fog</span></label>
                             </div>
                             <div class="checkbox-group">
                                 <input type="checkbox" id="optSpecial" checked>
-                                <label for="optSpecial"><i data-lucide="sparkles" class="option-icon"></i> 아이템</label>
+                                <label for="optSpecial"><i data-lucide="sparkles" class="option-icon"></i> <span data-i18n="items">Items</span></label>
                             </div>
                         </div>
                     </div>
@@ -68,7 +76,7 @@
                 <div class="card">
                     <div class="card-title">
                         <i data-lucide="target"></i>
-                        <span>아이템 효과</span>
+                        <span data-i18n="itemEffects">Item Effects</span>
                     </div>
                     <div class="feature-list">
                         <div class="feature-item">
@@ -76,8 +84,8 @@
                                 <i data-lucide="zap"></i>
                             </div>
                             <div class="feature-text">
-                                <h4>부스트</h4>
-                                <p>2배 속도 증가</p>
+                                <h4 data-i18n="boost">Boost</h4>
+                                <p data-i18n="boostDesc">2x speed increase</p>
                             </div>
                         </div>
                         <div class="feature-item">
@@ -85,8 +93,8 @@
                                 <i data-lucide="snail"></i>
                             </div>
                             <div class="feature-text">
-                                <h4>슬로우</h4>
-                                <p>0.4배 속도 감소</p>
+                                <h4 data-i18n="slow">Slow</h4>
+                                <p data-i18n="slowDesc">0.4x speed decrease</p>
                             </div>
                         </div>
                         <div class="feature-item">
@@ -94,8 +102,8 @@
                                 <i data-lucide="rocket"></i>
                             </div>
                             <div class="feature-text">
-                                <h4>번개 점프</h4>
-                                <p>5칸 앞으로 순간이동</p>
+                                <h4 data-i18n="lightning">Lightning Jump</h4>
+                                <p data-i18n="lightningDesc">Teleport 5 tiles forward</p>
                             </div>
                         </div>
                         <div class="feature-item">
@@ -103,8 +111,8 @@
                                 <i data-lucide="snowflake"></i>
                             </div>
                             <div class="feature-text">
-                                <h4>빙결</h4>
-                                <p>2초간 정지</p>
+                                <h4 data-i18n="freeze">Freeze</h4>
+                                <p data-i18n="freezeDesc">Stop for 2 seconds</p>
                             </div>
                         </div>
                         <div class="feature-item">
@@ -112,8 +120,8 @@
                                 <i data-lucide="undo-2"></i>
                             </div>
                             <div class="feature-text">
-                                <h4>후퇴</h4>
-                                <p>5칸 뒤로 이동</p>
+                                <h4 data-i18n="reverse">Reverse</h4>
+                                <p data-i18n="reverseDesc">Move back 5 tiles</p>
                             </div>
                         </div>
                         <div class="feature-item">
@@ -121,8 +129,8 @@
                                 <i data-lucide="rotate-3d"></i>
                             </div>
                             <div class="feature-text">
-                                <h4>포탈</h4>
-                                <p>반대편으로 순간이동</p>
+                                <h4 data-i18n="portal">Portal</h4>
+                                <p data-i18n="portalDesc">Teleport to opposite side</p>
                             </div>
                         </div>
                     </div>
@@ -132,7 +140,7 @@
                 <div class="start-btn-container">
                     <button class="btn btn-primary" onclick="startGame()">
                         <i data-lucide="play"></i>
-                        <span>게임 시작</span>
+                        <span data-i18n="startGame">Start Game</span>
                     </button>
                 </div>
             </div>
@@ -146,9 +154,9 @@
                     <div class="game-status">
                         <h2 id="gameTitle">
                             <i data-lucide="puzzle" class="status-icon"></i>
-                            <span>준비 완료!</span>
+                            <span data-i18n="ready">Ready!</span>
                         </h2>
-                        <p id="gameSubtitle">레이스 시작 버튼을 누르세요</p>
+                        <p id="gameSubtitle" data-i18n="pressStart">Press Start Race button</p>
                     </div>
 
                     <div class="canvas-container">
@@ -170,7 +178,7 @@
 
                     <button class="btn btn-secondary" id="startRaceBtn" onclick="startCountdown()">
                         <i data-lucide="flag"></i>
-                        <span>레이스 시작</span>
+                        <span data-i18n="startRace">Start Race</span>
                     </button>
                 </div>
 
@@ -179,7 +187,7 @@
                     <div class="sidebar-card">
                         <h3 class="yellow">
                             <i data-lucide="trophy"></i>
-                            <span>실시간 순위</span>
+                            <span data-i18n="liveRanking">Live Ranking</span>
                         </h3>
                         <div id="liveRankings"></div>
                     </div>
@@ -187,7 +195,7 @@
                     <div class="sidebar-card">
                         <h3 class="blue">
                             <i data-lucide="scroll-text"></i>
-                            <span>이벤트 로그</span>
+                            <span data-i18n="eventLog">Event Log</span>
                         </h3>
                         <div id="eventLog"></div>
                     </div>
@@ -195,7 +203,7 @@
                     <div class="sidebar-card">
                         <h3 class="pink">
                             <i data-lucide="map"></i>
-                            <span>미니맵</span>
+                            <span data-i18n="minimap">Minimap</span>
                         </h3>
                         <canvas id="minimapCanvas"></canvas>
                     </div>
@@ -207,16 +215,16 @@
         <div id="resultScreen" class="screen">
             <div class="result-header">
                 <i data-lucide="trophy" class="result-icon"></i>
-                <h1>최종 결과</h1>
+                <h1 data-i18n="finalResult">Final Result</h1>
             </div>
-            <p class="subtitle" id="resultSubtitle">순위가 결정되었습니다!</p>
+            <p class="subtitle" id="resultSubtitle" data-i18n="rankDecided">Rankings have been decided!</p>
 
             <div class="result-content">
                 <!-- Rankings -->
                 <div class="card">
                     <div class="card-title">
                         <i data-lucide="bar-chart-3"></i>
-                        <span>순위</span>
+                        <span data-i18n="ranking">Ranking</span>
                     </div>
                     <div id="resultList" class="result-list"></div>
                 </div>
@@ -225,28 +233,28 @@
                 <div class="card stats-card">
                     <div class="card-title">
                         <i data-lucide="trending-up"></i>
-                        <span>게임 통계</span>
+                        <span data-i18n="gameStats">Game Stats</span>
                     </div>
                     <div class="stat-item">
                         <span class="stat-label">
                             <i data-lucide="clock" class="stat-icon"></i>
-                            총 게임 시간
+                            <span data-i18n="totalTime">Total Time</span>
                         </span>
-                        <span class="stat-value" id="statTotalTime">0초</span>
+                        <span class="stat-value" id="statTotalTime">0s</span>
                     </div>
                     <div class="stat-item">
                         <span class="stat-label">
                             <i data-lucide="package" class="stat-icon"></i>
-                            사용된 아이템
+                            <span data-i18n="itemsUsed">Items Used</span>
                         </span>
-                        <span class="stat-value" id="statTotalItems">0개</span>
+                        <span class="stat-value" id="statTotalItems">0</span>
                     </div>
                     <div class="stat-item">
                         <span class="stat-label">
                             <i data-lucide="repeat" class="stat-icon"></i>
-                            역전 이벤트
+                            <span data-i18n="reversalEvents">Reversal Events</span>
                         </span>
-                        <span class="stat-value" id="statReversals">0회</span>
+                        <span class="stat-value" id="statReversals">0</span>
                     </div>
                 </div>
 
@@ -254,11 +262,11 @@
                 <div class="share-section">
                     <button class="btn-share copy" onclick="copyResult()">
                         <i data-lucide="clipboard-copy"></i>
-                        <span>결과 복사</span>
+                        <span data-i18n="copyResult">Copy Result</span>
                     </button>
                     <button class="btn btn-primary" onclick="restart()" style="max-width: 300px;">
                         <i data-lucide="rotate-ccw"></i>
-                        <span>다시 하기</span>
+                        <span data-i18n="playAgain">Play Again</span>
                     </button>
                 </div>
             </div>

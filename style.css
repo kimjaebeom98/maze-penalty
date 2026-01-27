@@ -892,36 +892,59 @@ select option {
 }
 
 /* ========== SOUND TOGGLE ========== */
-.sound-toggle {
+/* ========== TOP CONTROLS ========== */
+.top-controls {
     position: fixed;
     top: 15px;
     right: 15px;
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
+    display: flex;
+    gap: 10px;
+    z-index: 100;
+}
+
+.control-btn {
+    height: 40px;
+    padding: 0 12px;
+    border-radius: 20px;
     background: rgba(255, 255, 255, 0.1);
     border: 2px solid rgba(255, 255, 255, 0.2);
     color: #fff;
-    font-size: 1.3rem;
+    font-size: 0.85rem;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.3s;
-    z-index: 100;
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 6px;
+    backdrop-filter: blur(10px);
 }
 
-.sound-toggle [data-lucide] {
-    width: 22px;
-    height: 22px;
+.control-btn [data-lucide] {
+    width: 18px;
+    height: 18px;
 }
 
-.sound-toggle:hover {
+.control-btn:hover {
     background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.4);
 }
 
-.sound-toggle.muted {
+.control-btn.muted {
     opacity: 0.5;
+}
+
+#soundToggle {
+    width: 40px;
+    padding: 0;
+}
+
+#langToggle {
+    min-width: 80px;
+}
+
+#langToggle:hover {
+    background: linear-gradient(135deg, rgba(72, 219, 251, 0.3), rgba(255, 107, 107, 0.3));
 }
 
 /* ========== RESPONSIVE ========== */
@@ -962,6 +985,27 @@ select option {
     .feature-list { gap: 8px; }
     .feature-item { padding: 10px; }
     .logo-icon { width: 36px !important; height: 36px !important; }
+
+    /* Top controls mobile */
+    .top-controls {
+        top: 10px;
+        right: 10px;
+        gap: 8px;
+    }
+
+    .control-btn {
+        height: 36px;
+        padding: 0 10px;
+        font-size: 0.75rem;
+    }
+
+    #soundToggle {
+        width: 36px;
+    }
+
+    #langToggle {
+        min-width: 70px;
+    }
 
     /* Mobile game screen improvements */
     .maze-wrapper {

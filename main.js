@@ -11,14 +11,180 @@ const MOVE_DURATION = 140; // Slower for better visibility
 const TILE = {
     WALL: 1,
     PATH: 0,
-    BOOST: 2,      // 2.5배 속도
-    SLOW: 3,       // 0.3배 속도
+    BOOST: 2,      // 2x speed
+    SLOW: 3,       // 0.4x speed
     PORTAL_A: 4,
     PORTAL_B: 5,
-    LIGHTNING: 6,  // 8칸 점프
-    FREEZE: 7,     // 2.5초 정지
-    REVERSE: 8     // 5칸 후퇴
+    LIGHTNING: 6,  // 5 tiles jump
+    FREEZE: 7,     // 2s freeze
+    REVERSE: 8     // 5 tiles back
 };
+
+// ========== TRANSLATIONS ==========
+const TRANSLATIONS = {
+    en: {
+        title: 'Maze Penalty',
+        subtitle: 'Last one out gets the penalty!',
+        gameSettings: 'Game Settings',
+        playerCount: 'Players',
+        playerNames: 'Player Names',
+        playerPlaceholder: 'Player',
+        gameOptions: 'Game Options',
+        fog: 'Fog',
+        items: 'Items',
+        itemEffects: 'Item Effects',
+        boost: 'Boost',
+        boostDesc: '2x speed increase',
+        slow: 'Slow',
+        slowDesc: '0.4x speed decrease',
+        lightning: 'Lightning Jump',
+        lightningDesc: 'Teleport 5 tiles forward',
+        freeze: 'Freeze',
+        freezeDesc: 'Stop for 2 seconds',
+        reverse: 'Reverse',
+        reverseDesc: 'Move back 5 tiles',
+        portal: 'Portal',
+        portalDesc: 'Teleport to opposite side',
+        startGame: 'Start Game',
+        ready: 'Ready!',
+        pressStart: 'Press Start Race button',
+        startRace: 'Start Race',
+        liveRanking: 'Live Ranking',
+        eventLog: 'Event Log',
+        minimap: 'Minimap',
+        raceInProgress: 'Race in Progress!',
+        whoWillEscape: 'Who will escape first?',
+        raceComplete: 'Race Complete!',
+        checkResult: 'Check the result',
+        finalResult: 'Final Result',
+        rankDecided: 'Rankings have been decided!',
+        penaltyFor: 'gets the penalty!',
+        ranking: 'Ranking',
+        gameStats: 'Game Stats',
+        totalTime: 'Total Time',
+        itemsUsed: 'Items Used',
+        reversalEvents: 'Reversal Events',
+        copyResult: 'Copy Result',
+        playAgain: 'Play Again',
+        exit: 'Exit',
+        finish: 'Finished',
+        penalty: 'PENALTY!',
+        distance: 'Distance',
+        time: 'Time',
+        tiles: 'tiles',
+        resultCopied: 'Result copied to clipboard!',
+        mazeGameResult: 'Maze Penalty Game Result',
+        tryMazeGame: 'Try Maze Penalty to decide who pays!'
+    },
+    ko: {
+        title: '미로 탈출',
+        subtitle: '가장 늦게 탈출하면 벌칙!',
+        gameSettings: '게임 설정',
+        playerCount: '참가 인원',
+        playerNames: '참가자 이름',
+        playerPlaceholder: '참가자',
+        gameOptions: '게임 옵션',
+        fog: '안개',
+        items: '아이템',
+        itemEffects: '아이템 효과',
+        boost: '부스트',
+        boostDesc: '2배 속도 증가',
+        slow: '슬로우',
+        slowDesc: '0.4배 속도 감소',
+        lightning: '번개 점프',
+        lightningDesc: '5칸 앞으로 순간이동',
+        freeze: '빙결',
+        freezeDesc: '2초간 정지',
+        reverse: '후퇴',
+        reverseDesc: '5칸 뒤로 이동',
+        portal: '포탈',
+        portalDesc: '반대편으로 순간이동',
+        startGame: '게임 시작',
+        ready: '준비 완료!',
+        pressStart: '레이스 시작 버튼을 누르세요',
+        startRace: '레이스 시작',
+        liveRanking: '실시간 순위',
+        eventLog: '이벤트 로그',
+        minimap: '미니맵',
+        raceInProgress: '레이스 진행 중!',
+        whoWillEscape: '누가 먼저 탈출할까요?',
+        raceComplete: '레이스 완료!',
+        checkResult: '결과를 확인하세요',
+        finalResult: '최종 결과',
+        rankDecided: '순위가 결정되었습니다!',
+        penaltyFor: '님이 벌칙 당첨!',
+        ranking: '순위',
+        gameStats: '게임 통계',
+        totalTime: '총 게임 시간',
+        itemsUsed: '사용된 아이템',
+        reversalEvents: '역전 이벤트',
+        copyResult: '결과 복사',
+        playAgain: '다시 하기',
+        exit: '출구',
+        finish: '골인',
+        penalty: '벌칙!',
+        distance: '거리',
+        time: '시간',
+        tiles: '칸',
+        resultCopied: '결과가 클립보드에 복사되었습니다!',
+        mazeGameResult: '미로 탈출 게임 결과',
+        tryMazeGame: '미로 탈출 게임으로 벌칙자를 정해보세요!'
+    }
+};
+
+let currentLang = 'en';
+
+// ========== TRANSLATION FUNCTIONS ==========
+function t(key) {
+    return TRANSLATIONS[currentLang][key] || TRANSLATIONS['en'][key] || key;
+}
+
+function detectLanguage() {
+    // Check localStorage first
+    const saved = localStorage.getItem('mazePenaltyLang');
+    if (saved && TRANSLATIONS[saved]) {
+        return saved;
+    }
+    // Auto-detect from browser
+    const browserLang = navigator.language || navigator.userLanguage;
+    if (browserLang.startsWith('ko')) {
+        return 'ko';
+    }
+    return 'en';
+}
+
+function setLanguage(lang) {
+    currentLang = lang;
+    localStorage.setItem('mazePenaltyLang', lang);
+    document.documentElement.lang = lang;
+
+    // Update toggle button
+    const langText = document.getElementById('langText');
+    if (langText) {
+        langText.textContent = lang === 'en' ? '한국어' : 'EN';
+    }
+
+    // Update all translatable elements
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (TRANSLATIONS[currentLang][key]) {
+            el.textContent = TRANSLATIONS[currentLang][key];
+        }
+    });
+
+    // Update player inputs placeholder
+    initPlayerInputs();
+
+    // Re-initialize icons
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+}
+
+function toggleLanguage() {
+    const newLang = currentLang === 'en' ? 'ko' : 'en';
+    setLanguage(newLang);
+}
 
 // ========== GAME STATE ==========
 let players = [];
@@ -210,15 +376,18 @@ function showEventBanner(text) {
 
 // ========== PLAYER INPUTS ==========
 function initPlayerInputs() {
-    const count = parseInt(document.getElementById('playerCount').value);
+    const countEl = document.getElementById('playerCount');
+    if (!countEl) return;
+    const count = parseInt(countEl.value);
     const container = document.getElementById('playerInputs');
+    if (!container) return;
     container.innerHTML = '';
     for (let i = 0; i < count; i++) {
         const div = document.createElement('div');
         div.className = 'player-input';
         div.innerHTML = `
             <div class="player-color" style="background: ${COLORS[i]}; color: ${COLORS[i]}"></div>
-            <input type="text" id="player${i}" placeholder="참가자 ${i + 1}" maxlength="8">
+            <input type="text" id="player${i}" placeholder="${t('playerPlaceholder')} ${i + 1}" maxlength="8">
         `;
         container.appendChild(div);
     }
@@ -783,8 +952,8 @@ function startGame() {
 
     document.getElementById('startRaceBtn').disabled = false;
     document.getElementById('progressFill').style.width = '0%';
-    document.getElementById('gameTitle').innerHTML = '<i data-lucide="puzzle" class="status-icon"></i><span>준비 완료!</span>';
-    document.getElementById('gameSubtitle').textContent = '레이스 시작 버튼을 누르세요';
+    document.getElementById('gameTitle').innerHTML = `<i data-lucide="puzzle" class="status-icon"></i><span>${t('ready')}</span>`;
+    document.getElementById('gameSubtitle').textContent = t('pressStart');
 
     showScreen('mazeScreen');
     initCanvas();
@@ -813,18 +982,18 @@ function updateLegend() {
             <span>${p.name}</span>
         </div>
     `).join('');
-    playersHtml += `<div class="legend-item"><div class="legend-color" style="background: #2ecc71"></div>${LEGEND_ICONS.flag}<span>출구</span></div>`;
+    playersHtml += `<div class="legend-item"><div class="legend-color" style="background: #2ecc71"></div>${LEGEND_ICONS.flag}<span>${t('exit')}</span></div>`;
 
     // Items row
     let itemsHtml = '';
     if (enableSpecialTiles) {
         itemsHtml = `
-            <div class="legend-item item"><div class="legend-tile" style="background: #27ae60"></div>${LEGEND_ICONS.boost}<span>부스트</span></div>
-            <div class="legend-item item"><div class="legend-tile" style="background: #9b59b6"></div>${LEGEND_ICONS.slow}<span>슬로우</span></div>
-            <div class="legend-item item"><div class="legend-tile" style="background: #f1c40f"></div>${LEGEND_ICONS.lightning}<span>번개점프</span></div>
-            <div class="legend-item item"><div class="legend-tile" style="background: #00cec9"></div>${LEGEND_ICONS.freeze}<span>빙결</span></div>
-            <div class="legend-item item"><div class="legend-tile" style="background: #e74c3c"></div>${LEGEND_ICONS.reverse}<span>후퇴</span></div>
-            <div class="legend-item item"><div class="legend-tile" style="background: #3498db"></div>${LEGEND_ICONS.portal}<span>포탈</span></div>
+            <div class="legend-item item"><div class="legend-tile" style="background: #27ae60"></div>${LEGEND_ICONS.boost}<span>${t('boost')}</span></div>
+            <div class="legend-item item"><div class="legend-tile" style="background: #9b59b6"></div>${LEGEND_ICONS.slow}<span>${t('slow')}</span></div>
+            <div class="legend-item item"><div class="legend-tile" style="background: #f1c40f"></div>${LEGEND_ICONS.lightning}<span>${t('lightning')}</span></div>
+            <div class="legend-item item"><div class="legend-tile" style="background: #00cec9"></div>${LEGEND_ICONS.freeze}<span>${t('freeze')}</span></div>
+            <div class="legend-item item"><div class="legend-tile" style="background: #e74c3c"></div>${LEGEND_ICONS.reverse}<span>${t('reverse')}</span></div>
+            <div class="legend-item item"><div class="legend-tile" style="background: #3498db"></div>${LEGEND_ICONS.portal}<span>${t('portal')}</span></div>
         `;
     }
 
@@ -864,8 +1033,8 @@ async function startCountdown() {
     overlay.classList.remove('active');
     numberEl.style.color = '#fff';
 
-    document.getElementById('gameTitle').innerHTML = '<i data-lucide="zap" class="status-icon"></i><span>레이스 진행 중!</span>';
-    document.getElementById('gameSubtitle').textContent = '누가 먼저 탈출할까요?';
+    document.getElementById('gameTitle').innerHTML = `<i data-lucide="zap" class="status-icon"></i><span>${t('raceInProgress')}</span>`;
+    document.getElementById('gameSubtitle').textContent = t('whoWillEscape');
     lucide.createIcons();
 
     startRace();
@@ -954,7 +1123,7 @@ function startRace() {
                         createFirework(player.x - 2, player.y - 1);
                         createFirework(player.x + 2, player.y - 1);
                         playFinishSound(finishOrder.length === 1);
-                        addEventLog('finish', `${player.name} 골인! (${finishOrder.length}등)`);
+                        addEventLog('finish', `${player.name} ${t('finish')}! (#${finishOrder.length})`);
                     }
                 }
             }
@@ -974,8 +1143,8 @@ function startRace() {
         if (!allFinished) {
             animationId = requestAnimationFrame(gameLoop);
         } else {
-            document.getElementById('gameTitle').innerHTML = '<i data-lucide="flag" class="status-icon"></i><span>레이스 완료!</span>';
-            document.getElementById('gameSubtitle').textContent = '결과를 확인하세요';
+            document.getElementById('gameTitle').innerHTML = `<i data-lucide="flag" class="status-icon"></i><span>${t('raceComplete')}</span>`;
+            document.getElementById('gameSubtitle').textContent = t('checkResult');
             lucide.createIcons();
             setTimeout(showResultScreen, 1200);
         }
@@ -993,7 +1162,7 @@ function handleTileEffect(player, tile, playerIndex, currentTime) {
             player.speedEffectUntil = currentTime + 2500;
             createParticles(player.x, player.y, '#27ae60', 15);
             playBoostSound();
-            addEventLog('boost', `${name} 부스트!`);
+            addEventLog('boost', `${name} ${t('boost')}!`);
             gameStats.boosts++;
             maze[player.y][player.x] = TILE.PATH;
             break;
@@ -1003,7 +1172,7 @@ function handleTileEffect(player, tile, playerIndex, currentTime) {
             player.speedEffectUntil = currentTime + 2500;
             createParticles(player.x, player.y, '#9b59b6', 15);
             playSlowSound();
-            addEventLog('slow', `${name} 슬로우!`);
+            addEventLog('slow', `${name} ${t('slow')}!`);
             gameStats.slows++;
             maze[player.y][player.x] = TILE.PATH;
             break;
@@ -1028,7 +1197,7 @@ function handleTileEffect(player, tile, playerIndex, currentTime) {
             }
             createParticles(lightningOrigX, lightningOrigY, '#f1c40f', 25);
             playLightningSound();
-            addEventLog('lightning', `${name} 번개점프!`);
+            addEventLog('lightning', `${name} ${t('lightning')}!`);
             gameStats.lightnings++;
             break;
 
@@ -1037,7 +1206,7 @@ function handleTileEffect(player, tile, playerIndex, currentTime) {
             player.frozenUntil = currentTime + 2000; // Reduced from 2.5s to 2s
             createParticles(player.x, player.y, '#00cec9', 20);
             playFreezeSound();
-            addEventLog('freeze', `${name} 빙결!`);
+            addEventLog('freeze', `${name} ${t('freeze')}!`);
             gameStats.freezes++;
             maze[player.y][player.x] = TILE.PATH;
             break;
@@ -1060,7 +1229,7 @@ function handleTileEffect(player, tile, playerIndex, currentTime) {
             }
             createParticles(reverseOrigX, reverseOrigY, '#e74c3c', 20);
             playReverseSound();
-            addEventLog('reverse', `${name} 후퇴!`);
+            addEventLog('reverse', `${name} ${t('reverse')}!`);
             gameStats.reverses++;
             break;
 
@@ -1074,7 +1243,7 @@ function handleTileEffect(player, tile, playerIndex, currentTime) {
                 createParticles(portalB.x, portalB.y, '#3498db', 15);
                 playPortalSound();
                 if (enableFog) revealArea(player.x, player.y, 2);
-                addEventLog('portal', `${name} 포탈!`);
+                addEventLog('portal', `${name} ${t('portal')}!`);
                 gameStats.portals++;
             }
             break;
@@ -1089,7 +1258,7 @@ function handleTileEffect(player, tile, playerIndex, currentTime) {
                 createParticles(portalA.x, portalA.y, '#3498db', 15);
                 playPortalSound();
                 if (enableFog) revealArea(player.x, player.y, 2);
-                addEventLog('portal', `${name} 포탈!`);
+                addEventLog('portal', `${name} ${t('portal')}!`);
                 gameStats.portals++;
             }
             break;
@@ -1100,7 +1269,7 @@ function showResultScreen() {
     finishOrder.sort((a, b) => a.finishTime - b.finishTime);
 
     const loserName = finishOrder[finishOrder.length - 1]?.name || '';
-    document.getElementById('resultSubtitle').textContent = `${loserName}님이 벌칙 당첨!`;
+    document.getElementById('resultSubtitle').textContent = `${loserName} ${t('penaltyFor')}`;
 
     const resultList = document.getElementById('resultList');
     resultList.innerHTML = '';
@@ -1123,9 +1292,9 @@ function showResultScreen() {
             <div class="result-rank ${rankClass}">${rank + 1}</div>
             <div class="player-info">
                 <div class="player-name">${player.name} ${isWinner ? '<span class="winner-crown">👑</span>' : ''}</div>
-                <div class="player-time">거리: ${player.path.length}칸 · 시간: ${timeStr}초</div>
+                <div class="player-time">${t('distance')}: ${player.path.length}${t('tiles')} · ${t('time')}: ${timeStr}s</div>
             </div>
-            ${isLoser ? '<div class="loser-badge">벌칙!</div>' : ''}
+            ${isLoser ? `<div class="loser-badge">${t('penalty')}</div>` : ''}
             <div class="player-avatar" style="background: ${player.color}"></div>
         `;
 
@@ -1134,28 +1303,28 @@ function showResultScreen() {
 
     // Stats
     const totalTime = (finishOrder[finishOrder.length - 1]?.finishTime / 1000 || 0).toFixed(1);
-    document.getElementById('statTotalTime').textContent = totalTime + '초';
+    document.getElementById('statTotalTime').textContent = totalTime + 's';
     document.getElementById('statTotalItems').textContent =
-        (gameStats.boosts + gameStats.slows + gameStats.lightnings + gameStats.freezes + gameStats.reverses + gameStats.portals) + '개';
-    document.getElementById('statReversals').textContent = (gameStats.reverses + gameStats.freezes) + '회';
+        (gameStats.boosts + gameStats.slows + gameStats.lightnings + gameStats.freezes + gameStats.reverses + gameStats.portals);
+    document.getElementById('statReversals').textContent = (gameStats.reverses + gameStats.freezes);
 
     showScreen('resultScreen');
 }
 
 function copyResult() {
-    const lines = ['미로 탈출 게임 결과', ''];
+    const lines = [t('mazeGameResult'), ''];
 
     finishOrder.forEach((player, rank) => {
         const medal = rank === 0 ? '🥇' : rank === 1 ? '🥈' : rank === 2 ? '🥉' : `${rank + 1}.`;
         const isLoser = rank === finishOrder.length - 1;
         const timeStr = (player.finishTime / 1000).toFixed(2);
-        lines.push(`${medal} ${player.name} - ${timeStr}초 ${isLoser ? '(벌칙!)' : ''}`);
+        lines.push(`${medal} ${player.name} - ${timeStr}s ${isLoser ? `(${t('penalty')})` : ''}`);
     });
 
-    lines.push('', '미로 탈출 게임으로 벌칙자를 정해보세요!');
+    lines.push('', t('tryMazeGame'));
 
     navigator.clipboard.writeText(lines.join('\n')).then(() => {
-        alert('결과가 클립보드에 복사되었습니다!');
+        alert(t('resultCopied'));
     });
 }
 
@@ -1176,8 +1345,11 @@ function restart() {
 
 // ========== INIT ==========
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize language from browser/localStorage
+    currentLang = detectLanguage();
+    setLanguage(currentLang);
+
     document.getElementById('playerCount').addEventListener('change', initPlayerInputs);
-    initPlayerInputs();
 
     window.addEventListener('resize', () => {
         if (document.getElementById('mazeScreen').classList.contains('active')) {
@@ -1193,3 +1365,4 @@ window.startCountdown = startCountdown;
 window.restart = restart;
 window.copyResult = copyResult;
 window.toggleSound = toggleSound;
+window.toggleLanguage = toggleLanguage;
