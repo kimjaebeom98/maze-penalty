@@ -730,7 +730,8 @@ function startGame() {
             animating: false, animStartTime: 0,
             animFromX: 0, animFromY: 0, animToX: 0, animToY: 0,
             speedMultiplier: 1, speedEffectUntil: 0,
-            frozen: false, frozenUntil: 0
+            frozen: false, frozenUntil: 0,
+            lastMoveTime: 0  // Track individual move timing
         });
     }
 
@@ -777,12 +778,12 @@ function updateLegend() {
 
     if (enableSpecialTiles) {
         html += `
-            <div class="legend-item"><div class="legend-tile" style="background: #27ae60"></div><span>부스트</span></div>
-            <div class="legend-item"><div class="legend-tile" style="background: #9b59b6"></div><span>슬로우</span></div>
-            <div class="legend-item"><div class="legend-tile" style="background: #f1c40f"></div><span>점프</span></div>
-            <div class="legend-item"><div class="legend-tile" style="background: #00cec9"></div><span>빙결</span></div>
-            <div class="legend-item"><div class="legend-tile" style="background: #e74c3c"></div><span>후퇴</span></div>
-            <div class="legend-item"><div class="legend-tile" style="background: #3498db"></div><span>포탈</span></div>
+            <div class="legend-item"><div class="legend-tile" style="background: #27ae60"></div><span>⚡ 부스트</span></div>
+            <div class="legend-item"><div class="legend-tile" style="background: #9b59b6"></div><span>🐌 슬로우</span></div>
+            <div class="legend-item"><div class="legend-tile" style="background: #f1c40f"></div><span>🚀 번개점프</span></div>
+            <div class="legend-item"><div class="legend-tile" style="background: #00cec9"></div><span>❄️ 빙결</span></div>
+            <div class="legend-item"><div class="legend-tile" style="background: #e74c3c"></div><span>↩️ 후퇴</span></div>
+            <div class="legend-item"><div class="legend-tile" style="background: #3498db"></div><span>🌀 포탈</span></div>
         `;
     }
 
@@ -830,6 +831,11 @@ function startRace() {
     raceStarted = true;
     raceStartTime = performance.now();
 
+    // Initialize each player's move timing
+    players.forEach(player => {
+        player.lastMoveTime = raceStartTime;
+    });
+
     function gameLoop(currentTime) {
         const elapsed = currentTime - raceStartTime;
         let allFinished = true;
@@ -840,6 +846,7 @@ function startRace() {
             // Check frozen
             if (player.frozen && currentTime > player.frozenUntil) {
                 player.frozen = false;
+                player.lastMoveTime = currentTime; // Reset move timer after unfreeze
             }
             if (player.frozen) {
                 allFinished = false;
@@ -847,30 +854,34 @@ function startRace() {
             }
 
             // Speed effect timeout
-            if (currentTime > player.speedEffectUntil) {
+            if (player.speedEffectUntil > 0 && currentTime > player.speedEffectUntil) {
                 player.speedMultiplier = 1;
+                player.speedEffectUntil = 0;
             }
 
+            // Calculate effective duration based on speed multiplier
             const effectiveDuration = MOVE_DURATION / player.speedMultiplier;
-            const targetIndex = Math.min(Math.floor(elapsed / effectiveDuration), player.path.length - 1);
 
-            if (targetIndex > player.pathIndex && !player.animating) {
+            // Check if it's time for next move (per-player timing)
+            const timeSinceLastMove = currentTime - player.lastMoveTime;
+            const shouldMove = timeSinceLastMove >= effectiveDuration;
+
+            if (shouldMove && !player.animating && player.pathIndex < player.path.length - 1) {
                 player.pathIndex++;
-                if (player.pathIndex < player.path.length) {
-                    const target = player.path[player.pathIndex];
-                    player.animating = true;
-                    player.animStartTime = currentTime;
-                    player.animFromX = player.x;
-                    player.animFromY = player.y;
-                    player.animToX = target.x;
-                    player.animToY = target.y;
-                }
+                const target = player.path[player.pathIndex];
+                player.animating = true;
+                player.animStartTime = currentTime;
+                player.animFromX = player.x;
+                player.animFromY = player.y;
+                player.animToX = target.x;
+                player.animToY = target.y;
+                player.lastMoveTime = currentTime;
             }
 
             if (player.animating) {
-                const effectiveDur = MOVE_DURATION / player.speedMultiplier;
+                const animDuration = MOVE_DURATION / player.speedMultiplier;
                 const animElapsed = currentTime - player.animStartTime;
-                const progress = Math.min(animElapsed / effectiveDur, 1);
+                const progress = Math.min(animElapsed / animDuration, 1);
                 const easedProgress = easeInOutQuad(progress);
 
                 player.renderX = player.animFromX + (player.animToX - player.animFromX) * easedProgress;
@@ -899,7 +910,7 @@ function startRace() {
                         createFirework(player.x - 2, player.y - 1);
                         createFirework(player.x + 2, player.y - 1);
                         playFinishSound(finishOrder.length === 1);
-                        addEventLog(`${player.name} 골인! (${finishOrder.length}등)`);
+                        addEventLog(`🏁 ${player.name} 골인! (${finishOrder.length}등)`);
                     }
                 }
             }
@@ -938,17 +949,17 @@ function handleTileEffect(player, tile, playerIndex, currentTime) {
             player.speedEffectUntil = currentTime + 2500;
             createParticles(player.x, player.y, '#27ae60', 15);
             playBoostSound();
-            addEventLog(`${name} 부스트!`);
+            addEventLog(`⚡ ${name} 부스트!`);
             gameStats.boosts++;
             maze[player.y][player.x] = TILE.PATH;
             break;
 
         case TILE.SLOW:
-            player.speedMultiplier = 0.4;  // Reduced penalty from 0.3x to 0.4x
+            player.speedMultiplier = 0.4;
             player.speedEffectUntil = currentTime + 2500;
             createParticles(player.x, player.y, '#9b59b6', 15);
             playSlowSound();
-            addEventLog(`${name} 슬로우...`);
+            addEventLog(`🐌 ${name} 슬로우!`);
             gameStats.slows++;
             maze[player.y][player.x] = TILE.PATH;
             break;
@@ -973,7 +984,7 @@ function handleTileEffect(player, tile, playerIndex, currentTime) {
             }
             createParticles(lightningOrigX, lightningOrigY, '#f1c40f', 25);
             playLightningSound();
-            addEventLog(`${name} 번개 점프!`);
+            addEventLog(`🚀 ${name} 번개점프!`);
             gameStats.lightnings++;
             break;
 
@@ -982,7 +993,7 @@ function handleTileEffect(player, tile, playerIndex, currentTime) {
             player.frozenUntil = currentTime + 2000; // Reduced from 2.5s to 2s
             createParticles(player.x, player.y, '#00cec9', 20);
             playFreezeSound();
-            addEventLog(`${name} 빙결!`);
+            addEventLog(`❄️ ${name} 빙결!`);
             gameStats.freezes++;
             maze[player.y][player.x] = TILE.PATH;
             break;
@@ -1005,7 +1016,7 @@ function handleTileEffect(player, tile, playerIndex, currentTime) {
             }
             createParticles(reverseOrigX, reverseOrigY, '#e74c3c', 20);
             playReverseSound();
-            addEventLog(`${name} 후퇴!`);
+            addEventLog(`↩️ ${name} 후퇴!`);
             gameStats.reverses++;
             break;
 
@@ -1019,7 +1030,7 @@ function handleTileEffect(player, tile, playerIndex, currentTime) {
                 createParticles(portalB.x, portalB.y, '#3498db', 15);
                 playPortalSound();
                 if (enableFog) revealArea(player.x, player.y, 2);
-                addEventLog(`${name} 포탈 이동!`);
+                addEventLog(`🌀 ${name} 포탈!`);
                 gameStats.portals++;
             }
             break;
@@ -1034,7 +1045,7 @@ function handleTileEffect(player, tile, playerIndex, currentTime) {
                 createParticles(portalA.x, portalA.y, '#3498db', 15);
                 playPortalSound();
                 if (enableFog) revealArea(player.x, player.y, 2);
-                addEventLog(`${name} 포탈 이동!`);
+                addEventLog(`🌀 ${name} 포탈!`);
                 gameStats.portals++;
             }
             break;
