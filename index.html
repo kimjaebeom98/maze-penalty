@@ -20,7 +20,7 @@
         }
 
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             padding: 20px;
             min-height: 100vh;
@@ -168,6 +168,12 @@
             transform: translateY(0);
         }
 
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         /* Maze Screen */
         .maze-container {
             display: flex;
@@ -193,7 +199,7 @@
             background: rgba(255, 255, 255, 0.05);
             border-radius: 12px;
             width: 100%;
-            max-width: 600px;
+            max-width: 700px;
         }
 
         .legend-item {
@@ -207,6 +213,27 @@
             width: 16px;
             height: 16px;
             border-radius: 50%;
+        }
+
+        .progress-bar {
+            width: 100%;
+            max-width: 700px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .progress-bar.active {
+            display: block;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 4px;
+            transition: width 0.3s ease;
         }
 
         /* Result Screen */
@@ -296,32 +323,6 @@
             margin-left: 10px;
         }
 
-        .exit-marker {
-            position: absolute;
-            font-size: 1.5rem;
-        }
-
-        /* Loading */
-        .loading {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .spinner {
-            width: 60px;
-            height: 60px;
-            border: 4px solid rgba(255, 255, 255, 0.1);
-            border-top-color: #48dbfb;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
         /* Responsive */
         @media (max-width: 600px) {
             h1 { font-size: 1.8rem; }
@@ -370,8 +371,11 @@
 
             <div class="maze-container">
                 <canvas id="mazeCanvas"></canvas>
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
                 <div id="legend" class="legend"></div>
-                <button class="btn btn-secondary" onclick="showResult()">🏁 결과 보기</button>
+                <button class="btn btn-secondary" id="startRaceBtn" onclick="startRace()">🏁 결과 보기</button>
             </div>
         </div>
 
@@ -396,12 +400,22 @@
         // Game state
         let players = [];
         let maze = [];
-        let mazeWidth = 21;
-        let mazeHeight = 21;
+        let mazeWidth = 35;  // Increased from 21
+        let mazeHeight = 35; // Increased from 21
         let cellSize = 20;
         let exitPos = { x: 0, y: 0 };
         let canvas, ctx;
-        let animationRunning = false;
+        let animationId = null;
+        let raceStarted = false;
+        let finishOrder = [];
+
+        // Animation settings
+        const MOVE_DURATION = 120; // ms per cell (smoother movement)
+
+        // Easing function for smooth animation
+        function easeInOutQuad(t) {
+            return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+        }
 
         // Initialize player inputs
         function initPlayerInputs() {
@@ -429,26 +443,27 @@
             document.getElementById(screenId).classList.add('active');
         }
 
-        // Generate maze using Recursive Backtracking
+        // Generate maze using Recursive Backtracking with more complexity
         function generateMaze() {
-            // Initialize maze with walls
             maze = [];
             for (let y = 0; y < mazeHeight; y++) {
                 maze[y] = [];
                 for (let x = 0; x < mazeWidth; x++) {
-                    maze[y][x] = 1; // Wall
+                    maze[y][x] = 1;
                 }
             }
 
-            // Recursive backtracking
-            function carve(x, y) {
-                maze[y][x] = 0; // Path
+            // Stack-based iterative approach to avoid stack overflow on large mazes
+            const stack = [{ x: 1, y: 1 }];
+            maze[1][1] = 0;
 
+            while (stack.length > 0) {
+                const current = stack[stack.length - 1];
                 const directions = [
-                    { dx: 0, dy: -2 }, // Up
-                    { dx: 2, dy: 0 },  // Right
-                    { dx: 0, dy: 2 },  // Down
-                    { dx: -2, dy: 0 }  // Left
+                    { dx: 0, dy: -2 },
+                    { dx: 2, dy: 0 },
+                    { dx: 0, dy: 2 },
+                    { dx: -2, dy: 0 }
                 ];
 
                 // Shuffle directions
@@ -457,21 +472,26 @@
                     [directions[i], directions[j]] = [directions[j], directions[i]];
                 }
 
+                let found = false;
                 for (const dir of directions) {
-                    const nx = x + dir.dx;
-                    const ny = y + dir.dy;
+                    const nx = current.x + dir.dx;
+                    const ny = current.y + dir.dy;
 
                     if (nx > 0 && nx < mazeWidth - 1 && ny > 0 && ny < mazeHeight - 1 && maze[ny][nx] === 1) {
-                        maze[y + dir.dy / 2][x + dir.dx / 2] = 0; // Remove wall between
-                        carve(nx, ny);
+                        maze[current.y + dir.dy / 2][current.x + dir.dx / 2] = 0;
+                        maze[ny][nx] = 0;
+                        stack.push({ x: nx, y: ny });
+                        found = true;
+                        break;
                     }
+                }
+
+                if (!found) {
+                    stack.pop();
                 }
             }
 
-            // Start carving from (1, 1)
-            carve(1, 1);
-
-            // Set exit at bottom-right area
+            // Set exit at bottom-right
             exitPos = { x: mazeWidth - 2, y: mazeHeight - 2 };
             maze[exitPos.y][exitPos.x] = 0;
         }
@@ -513,33 +533,30 @@
                 }
             }
 
-            return []; // No path found
+            return [];
         }
 
-        // Get valid start positions
+        // Get valid start positions spread across the maze
         function getStartPositions(count) {
             const positions = [];
             const usedPositions = new Set();
 
-            // Define potential start areas (edges of the maze)
             const startAreas = [
                 { x: 1, y: 1 },
                 { x: mazeWidth - 2, y: 1 },
                 { x: 1, y: mazeHeight - 2 },
-                { x: 1, y: Math.floor(mazeHeight / 2) },
                 { x: Math.floor(mazeWidth / 2), y: 1 },
+                { x: 1, y: Math.floor(mazeHeight / 2) },
                 { x: mazeWidth - 2, y: Math.floor(mazeHeight / 2) },
                 { x: Math.floor(mazeWidth / 2), y: mazeHeight - 2 },
                 { x: Math.floor(mazeWidth / 4), y: Math.floor(mazeHeight / 4) }
             ];
 
-            // Find valid start positions near these areas
             for (let i = 0; i < count && i < startAreas.length; i++) {
                 const area = startAreas[i];
                 let found = false;
 
-                // Search for a valid path cell near this area
-                for (let r = 0; r < 5 && !found; r++) {
+                for (let r = 0; r < 8 && !found; r++) {
                     for (let dy = -r; dy <= r && !found; dy++) {
                         for (let dx = -r; dx <= r && !found; dx++) {
                             const x = area.x + dx;
@@ -561,35 +578,30 @@
             return positions;
         }
 
-        // Draw maze
-        function drawMaze() {
-            canvas = document.getElementById('mazeCanvas');
-            ctx = canvas.getContext('2d');
-
-            // Responsive canvas size
-            const maxSize = Math.min(window.innerWidth - 40, 600);
-            cellSize = Math.floor(maxSize / mazeWidth);
-
-            canvas.width = mazeWidth * cellSize;
-            canvas.height = mazeHeight * cellSize;
-
-            // Draw maze
+        // Draw the maze background
+        function drawMazeBackground() {
+            // Draw maze cells
             for (let y = 0; y < mazeHeight; y++) {
                 for (let x = 0; x < mazeWidth; x++) {
                     if (maze[y][x] === 1) {
-                        ctx.fillStyle = '#2c3e50';
+                        // Wall with gradient effect
+                        const gradient = ctx.createLinearGradient(
+                            x * cellSize, y * cellSize,
+                            (x + 1) * cellSize, (y + 1) * cellSize
+                        );
+                        gradient.addColorStop(0, '#2c3e50');
+                        gradient.addColorStop(1, '#34495e');
+                        ctx.fillStyle = gradient;
                     } else {
                         ctx.fillStyle = '#1a1a2e';
                     }
                     ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
-
-                    // Add subtle grid
-                    ctx.strokeStyle = 'rgba(255,255,255,0.03)';
-                    ctx.strokeRect(x * cellSize, y * cellSize, cellSize, cellSize);
                 }
             }
 
-            // Draw exit
+            // Draw exit with glow effect
+            ctx.shadowColor = '#2ecc71';
+            ctx.shadowBlur = 15;
             ctx.fillStyle = '#2ecc71';
             ctx.beginPath();
             ctx.arc(
@@ -599,61 +611,154 @@
                 0, Math.PI * 2
             );
             ctx.fill();
+            ctx.shadowBlur = 0;
 
-            // Exit flag emoji
+            // Exit flag
             ctx.font = `${cellSize - 4}px serif`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText('🚩', exitPos.x * cellSize + cellSize / 2, exitPos.y * cellSize + cellSize / 2);
-
-            // Draw players
-            players.forEach((player, i) => {
-                drawPlayer(player.x, player.y, COLORS[i], player.name.charAt(0));
-            });
         }
 
-        // Draw player
-        function drawPlayer(x, y, color, initial) {
+        // Draw a single player with smooth position
+        function drawPlayerSmooth(x, y, color, initial, isFinished) {
+            const px = x * cellSize + cellSize / 2;
+            const py = y * cellSize + cellSize / 2;
+            const radius = cellSize / 2 - 3;
+
+            // Glow effect
+            ctx.shadowColor = color;
+            ctx.shadowBlur = isFinished ? 20 : 10;
+
+            // Player circle
             ctx.fillStyle = color;
             ctx.beginPath();
-            ctx.arc(
-                x * cellSize + cellSize / 2,
-                y * cellSize + cellSize / 2,
-                cellSize / 2 - 3,
-                0, Math.PI * 2
-            );
+            ctx.arc(px, py, radius, 0, Math.PI * 2);
             ctx.fill();
+
+            ctx.shadowBlur = 0;
 
             // Player initial
             ctx.fillStyle = '#fff';
             ctx.font = `bold ${cellSize / 2}px sans-serif`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText(initial.toUpperCase(), x * cellSize + cellSize / 2, y * cellSize + cellSize / 2);
+            ctx.fillText(initial.toUpperCase(), px, py);
+        }
+
+        // Draw path trail with gradient
+        function drawPathTrail(player, colorIndex) {
+            if (player.visitedPath.length < 2) return;
+
+            const color = COLORS[colorIndex];
+
+            // Create gradient trail
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            for (let i = 1; i < player.visitedPath.length; i++) {
+                const prev = player.visitedPath[i - 1];
+                const curr = player.visitedPath[i];
+
+                // Fade effect based on position in trail
+                const alpha = 0.3 + (i / player.visitedPath.length) * 0.5;
+                ctx.strokeStyle = color + Math.floor(alpha * 255).toString(16).padStart(2, '0');
+                ctx.lineWidth = 3;
+
+                ctx.beginPath();
+                ctx.moveTo(prev.x * cellSize + cellSize / 2, prev.y * cellSize + cellSize / 2);
+                ctx.lineTo(curr.x * cellSize + cellSize / 2, curr.y * cellSize + cellSize / 2);
+                ctx.stroke();
+            }
+
+            // Draw line to current animated position
+            if (player.visitedPath.length > 0) {
+                const last = player.visitedPath[player.visitedPath.length - 1];
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(last.x * cellSize + cellSize / 2, last.y * cellSize + cellSize / 2);
+                ctx.lineTo(player.renderX * cellSize + cellSize / 2, player.renderY * cellSize + cellSize / 2);
+                ctx.stroke();
+            }
+        }
+
+        // Main render function
+        function render() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawMazeBackground();
+
+            // Draw trails first
+            players.forEach((player, i) => {
+                drawPathTrail(player, i);
+            });
+
+            // Draw players on top
+            players.forEach((player, i) => {
+                drawPlayerSmooth(
+                    player.renderX,
+                    player.renderY,
+                    COLORS[i],
+                    player.name.charAt(0),
+                    player.finished
+                );
+            });
+        }
+
+        // Initialize canvas
+        function initCanvas() {
+            canvas = document.getElementById('mazeCanvas');
+            ctx = canvas.getContext('2d');
+
+            const maxSize = Math.min(window.innerWidth - 40, 700);
+            cellSize = Math.floor(maxSize / mazeWidth);
+
+            canvas.width = mazeWidth * cellSize;
+            canvas.height = mazeHeight * cellSize;
         }
 
         // Start game
         function startGame() {
             const count = parseInt(document.getElementById('playerCount').value);
             players = [];
+            finishOrder = [];
+            raceStarted = false;
 
             for (let i = 0; i < count; i++) {
                 const input = document.getElementById(`player${i}`);
                 const name = input.value.trim() || `참가자 ${i + 1}`;
-                players.push({ name, x: 0, y: 0, path: [], pathIndex: 0, finished: false, finishTime: 0 });
+                players.push({
+                    name,
+                    x: 0,
+                    y: 0,
+                    renderX: 0,
+                    renderY: 0,
+                    path: [],
+                    pathIndex: 0,
+                    visitedPath: [],
+                    finished: false,
+                    finishTime: 0,
+                    animating: false,
+                    animStartTime: 0,
+                    animFromX: 0,
+                    animFromY: 0,
+                    animToX: 0,
+                    animToY: 0
+                });
             }
 
-            // Generate maze
             generateMaze();
 
-            // Assign start positions
             const startPositions = getStartPositions(count);
             players.forEach((player, i) => {
                 if (startPositions[i]) {
                     player.x = startPositions[i].x;
                     player.y = startPositions[i].y;
+                    player.renderX = player.x;
+                    player.renderY = player.y;
                 }
                 player.path = findPath(player.x, player.y, exitPos.x, exitPos.y);
+                player.visitedPath = [{ x: player.x, y: player.y }];
             });
 
             // Create legend
@@ -661,7 +766,7 @@
             legend.innerHTML = players.map((p, i) => `
                 <div class="legend-item">
                     <div class="legend-color" style="background: ${COLORS[i]}"></div>
-                    <span>${p.name}</span>
+                    <span>${p.name} (${p.path.length}칸)</span>
                 </div>
             `).join('') + `
                 <div class="legend-item">
@@ -670,98 +775,127 @@
                 </div>
             `;
 
+            document.getElementById('startRaceBtn').disabled = false;
+            document.getElementById('progressBar').classList.remove('active');
+
             showScreen('mazeScreen');
-            drawMaze();
+            initCanvas();
+            render();
         }
 
-        // Show result with animation
-        function showResult() {
-            if (animationRunning) return;
-            animationRunning = true;
+        // Start the race animation
+        function startRace() {
+            if (raceStarted) return;
+            raceStarted = true;
 
-            let time = 0;
-            const speed = 100; // ms per step
+            document.getElementById('startRaceBtn').disabled = true;
+            document.getElementById('progressBar').classList.add('active');
 
-            function animate() {
+            let startTime = performance.now();
+            let maxPathLength = Math.max(...players.map(p => p.path.length));
+
+            function gameLoop(currentTime) {
+                const elapsed = currentTime - startTime;
                 let allFinished = true;
 
                 players.forEach((player, i) => {
-                    if (!player.finished && player.pathIndex < player.path.length) {
-                        allFinished = false;
-                        const pos = player.path[player.pathIndex];
-                        player.x = pos.x;
-                        player.y = pos.y;
+                    if (player.finished) return;
+
+                    // Calculate which cell we should be at based on time
+                    const targetIndex = Math.min(
+                        Math.floor(elapsed / MOVE_DURATION),
+                        player.path.length - 1
+                    );
+
+                    // Start new cell animation if needed
+                    if (targetIndex > player.pathIndex && !player.animating) {
                         player.pathIndex++;
-
-                        if (player.x === exitPos.x && player.y === exitPos.y) {
-                            player.finished = true;
-                            player.finishTime = time;
+                        if (player.pathIndex < player.path.length) {
+                            const target = player.path[player.pathIndex];
+                            player.animating = true;
+                            player.animStartTime = currentTime;
+                            player.animFromX = player.x;
+                            player.animFromY = player.y;
+                            player.animToX = target.x;
+                            player.animToY = target.y;
                         }
+                    }
+
+                    // Animate current movement
+                    if (player.animating) {
+                        const animElapsed = currentTime - player.animStartTime;
+                        const progress = Math.min(animElapsed / MOVE_DURATION, 1);
+                        const easedProgress = easeInOutQuad(progress);
+
+                        player.renderX = player.animFromX + (player.animToX - player.animFromX) * easedProgress;
+                        player.renderY = player.animFromY + (player.animToY - player.animFromY) * easedProgress;
+
+                        if (progress >= 1) {
+                            player.x = player.animToX;
+                            player.y = player.animToY;
+                            player.renderX = player.x;
+                            player.renderY = player.y;
+                            player.animating = false;
+                            player.visitedPath.push({ x: player.x, y: player.y });
+
+                            // Check if reached exit
+                            if (player.x === exitPos.x && player.y === exitPos.y) {
+                                player.finished = true;
+                                player.finishTime = elapsed;
+                                finishOrder.push({ ...player, color: COLORS[i] });
+                            }
+                        }
+                    }
+
+                    if (!player.finished) {
+                        allFinished = false;
                     }
                 });
 
-                drawMaze();
+                // Update progress bar
+                const avgProgress = players.reduce((sum, p) => {
+                    return sum + (p.pathIndex / (p.path.length - 1));
+                }, 0) / players.length;
+                document.getElementById('progressFill').style.width = `${avgProgress * 100}%`;
 
-                // Draw paths
-                players.forEach((player, i) => {
-                    ctx.strokeStyle = COLORS[i];
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    for (let j = 0; j < player.pathIndex; j++) {
-                        const pos = player.path[j];
-                        if (j === 0) {
-                            ctx.moveTo(pos.x * cellSize + cellSize / 2, pos.y * cellSize + cellSize / 2);
-                        } else {
-                            ctx.lineTo(pos.x * cellSize + cellSize / 2, pos.y * cellSize + cellSize / 2);
-                        }
-                    }
-                    ctx.stroke();
-                });
-
-                // Redraw players on top
-                players.forEach((player, i) => {
-                    drawPlayer(player.x, player.y, COLORS[i], player.name.charAt(0));
-                });
-
-                time++;
+                render();
 
                 if (!allFinished) {
-                    setTimeout(animate, speed);
+                    animationId = requestAnimationFrame(gameLoop);
                 } else {
-                    animationRunning = false;
-                    setTimeout(showResultScreen, 500);
+                    // Sort by finish time and show results
+                    setTimeout(showResultScreen, 800);
                 }
             }
 
-            animate();
+            animationId = requestAnimationFrame(gameLoop);
         }
 
         // Show result screen
         function showResultScreen() {
-            // Sort by finish time
-            const sorted = [...players].map((p, i) => ({ ...p, color: COLORS[i] }))
-                .sort((a, b) => a.finishTime - b.finishTime);
+            finishOrder.sort((a, b) => a.finishTime - b.finishTime);
 
             const resultList = document.getElementById('resultList');
             resultList.innerHTML = '';
 
-            sorted.forEach((player, rank) => {
-                const isLoser = rank === sorted.length - 1;
+            finishOrder.forEach((player, rank) => {
+                const isLoser = rank === finishOrder.length - 1;
                 const div = document.createElement('div');
                 div.className = `result-item ${isLoser ? 'loser' : ''}`;
-                div.style.animationDelay = `${rank * 0.1}s`;
+                div.style.animationDelay = `${rank * 0.15}s`;
 
                 let rankClass = '';
-                let rankEmoji = '';
-                if (rank === 0) { rankClass = 'gold'; rankEmoji = '👑'; }
-                else if (rank === 1) { rankClass = 'silver'; }
-                else if (rank === 2) { rankClass = 'bronze'; }
+                if (rank === 0) rankClass = 'gold';
+                else if (rank === 1) rankClass = 'silver';
+                else if (rank === 2) rankClass = 'bronze';
+
+                const timeStr = (player.finishTime / 1000).toFixed(2);
 
                 div.innerHTML = `
                     <div class="rank ${rankClass}">${rank + 1}</div>
                     <div class="player-info">
                         <div class="player-name">${player.name} ${rank === 0 ? '<span class="winner-crown">👑</span>' : ''}</div>
-                        <div class="player-time">이동 거리: ${player.path.length} 칸</div>
+                        <div class="player-time">거리: ${player.path.length}칸 · 시간: ${timeStr}초</div>
                     </div>
                     ${isLoser ? '<div class="loser-badge">벌칙!</div>' : ''}
                     <div class="player-avatar" style="background: ${player.color}"></div>
@@ -775,18 +909,20 @@
 
         // Restart game
         function restart() {
-            players.forEach(p => {
-                p.pathIndex = 0;
-                p.finished = false;
-                p.finishTime = 0;
-            });
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+            raceStarted = false;
+            finishOrder = [];
             showScreen('startScreen');
         }
 
         // Handle window resize
         window.addEventListener('resize', () => {
             if (document.getElementById('mazeScreen').classList.contains('active')) {
-                drawMaze();
+                initCanvas();
+                render();
             }
         });
     </script>
