@@ -1239,6 +1239,9 @@ function handleTileEffect(player, tile, playerIndex, currentTime) {
                 player.y = portalB.y;
                 player.renderX = player.x;
                 player.renderY = player.y;
+                // Recalculate path from new position
+                player.path = findPath(player.x, player.y, exitPos.x, exitPos.y);
+                player.pathIndex = 0;
                 createParticles(portalA.x, portalA.y, '#3498db', 15);
                 createParticles(portalB.x, portalB.y, '#3498db', 15);
                 playPortalSound();
@@ -1254,6 +1257,9 @@ function handleTileEffect(player, tile, playerIndex, currentTime) {
                 player.y = portalA.y;
                 player.renderX = player.x;
                 player.renderY = player.y;
+                // Recalculate path from new position
+                player.path = findPath(player.x, player.y, exitPos.x, exitPos.y);
+                player.pathIndex = 0;
                 createParticles(portalB.x, portalB.y, '#3498db', 15);
                 createParticles(portalA.x, portalA.y, '#3498db', 15);
                 playPortalSound();
