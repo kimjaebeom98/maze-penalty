@@ -566,11 +566,25 @@ select option {
 
 .event-item {
     font-size: 0.75rem;
-    padding: 5px 8px;
+    padding: 6px 8px;
     margin-bottom: 4px;
     background: rgba(255, 255, 255, 0.03);
     border-radius: 5px;
     animation: eventSlide 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.event-icon {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+}
+
+.event-time {
+    color: #888;
+    font-size: 0.7rem;
 }
 
 @keyframes eventSlide {
@@ -643,11 +657,17 @@ select option {
 .legend-item {
     display: flex;
     align-items: center;
-    gap: 5px;
-    font-size: 0.8rem;
+    gap: 4px;
+    font-size: 0.75rem;
     padding: 4px 8px;
     background: rgba(255, 255, 255, 0.05);
     border-radius: 5px;
+}
+
+.legend-item svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
 }
 
 .legend-color {

@@ -162,13 +162,33 @@ function renderParticles() {
 }
 
 // ========== UTILITY ==========
-function easeInOutQuad(t) {
-    return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+// Smoother easing function (cubic)
+function easeInOutCubic(t) {
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 }
 
-function addEventLog(message) {
+// Even smoother for special effects
+function easeOutBack(t) {
+    const c1 = 1.70158;
+    const c3 = c1 + 1;
+    return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+}
+
+// Event log icons (same as legend)
+const EVENT_ICONS = {
+    boost: '<svg class="event-icon" viewBox="0 0 24 24" fill="none" stroke="#27ae60" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+    slow: '<svg class="event-icon" viewBox="0 0 24 24" fill="none" stroke="#9b59b6" stroke-width="2"><path d="M2 13a6 6 0 1 0 12 0 4 4 0 1 0-12 0Z"/><circle cx="10" cy="13" r="2"/></svg>',
+    lightning: '<svg class="event-icon" viewBox="0 0 24 24" fill="none" stroke="#f1c40f" stroke-width="2"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/></svg>',
+    freeze: '<svg class="event-icon" viewBox="0 0 24 24" fill="none" stroke="#00cec9" stroke-width="2"><line x1="2" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="22"/><path d="m20 16-4-4 4-4"/><path d="m4 8 4 4-4 4"/></svg>',
+    reverse: '<svg class="event-icon" viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>',
+    portal: '<svg class="event-icon" viewBox="0 0 24 24" fill="none" stroke="#3498db" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>',
+    finish: '<svg class="event-icon" viewBox="0 0 24 24" fill="none" stroke="#2ecc71" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/></svg>'
+};
+
+function addEventLog(type, message) {
     const time = ((performance.now() - raceStartTime) / 1000).toFixed(1);
-    eventLog.unshift({ time, message });
+    const icon = EVENT_ICONS[type] || '';
+    eventLog.unshift({ time, message, icon });
     if (eventLog.length > 20) eventLog.pop();
     updateEventLogUI();
 }
@@ -177,7 +197,7 @@ function updateEventLogUI() {
     const container = document.getElementById('eventLog');
     if (!container) return;
     container.innerHTML = eventLog.slice(0, 8).map(e =>
-        `<div class="event-item">[${e.time}s] ${e.message}</div>`
+        `<div class="event-item">${e.icon}<span class="event-time">[${e.time}s]</span> ${e.message}</div>`
     ).join('');
 }
 
@@ -765,6 +785,17 @@ function startGame() {
     render();
 }
 
+// Lucide icon SVGs for legend
+const LEGEND_ICONS = {
+    boost: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+    slow: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 13a6 6 0 1 0 12 0 4 4 0 1 0-12 0Z"/><circle cx="10" cy="13" r="2"/><path d="M14 13h8"/><path d="M22 13a4 4 0 0 0-4-4"/></svg>',
+    lightning: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>',
+    freeze: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="2" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="22"/><path d="m20 16-4-4 4-4"/><path d="m4 8 4 4-4 4"/><path d="m16 4-4 4-4-4"/><path d="m8 20 4-4 4 4"/></svg>',
+    reverse: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>',
+    portal: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>',
+    flag: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/></svg>'
+};
+
 function updateLegend() {
     const legend = document.getElementById('legend');
     let html = players.map((p, i) => `
@@ -774,16 +805,16 @@ function updateLegend() {
         </div>
     `).join('');
 
-    html += `<div class="legend-item"><div class="legend-color" style="background: #2ecc71"></div><span>출구</span></div>`;
+    html += `<div class="legend-item"><div class="legend-color" style="background: #2ecc71"></div>${LEGEND_ICONS.flag}<span>출구</span></div>`;
 
     if (enableSpecialTiles) {
         html += `
-            <div class="legend-item"><div class="legend-tile" style="background: #27ae60"></div><span>⚡ 부스트</span></div>
-            <div class="legend-item"><div class="legend-tile" style="background: #9b59b6"></div><span>🐌 슬로우</span></div>
-            <div class="legend-item"><div class="legend-tile" style="background: #f1c40f"></div><span>🚀 번개점프</span></div>
-            <div class="legend-item"><div class="legend-tile" style="background: #00cec9"></div><span>❄️ 빙결</span></div>
-            <div class="legend-item"><div class="legend-tile" style="background: #e74c3c"></div><span>↩️ 후퇴</span></div>
-            <div class="legend-item"><div class="legend-tile" style="background: #3498db"></div><span>🌀 포탈</span></div>
+            <div class="legend-item"><div class="legend-tile" style="background: #27ae60"></div>${LEGEND_ICONS.boost}<span>부스트</span></div>
+            <div class="legend-item"><div class="legend-tile" style="background: #9b59b6"></div>${LEGEND_ICONS.slow}<span>슬로우</span></div>
+            <div class="legend-item"><div class="legend-tile" style="background: #f1c40f"></div>${LEGEND_ICONS.lightning}<span>번개점프</span></div>
+            <div class="legend-item"><div class="legend-tile" style="background: #00cec9"></div>${LEGEND_ICONS.freeze}<span>빙결</span></div>
+            <div class="legend-item"><div class="legend-tile" style="background: #e74c3c"></div>${LEGEND_ICONS.reverse}<span>후퇴</span></div>
+            <div class="legend-item"><div class="legend-tile" style="background: #3498db"></div>${LEGEND_ICONS.portal}<span>포탈</span></div>
         `;
     }
 
@@ -882,7 +913,7 @@ function startRace() {
                 const animDuration = MOVE_DURATION / player.speedMultiplier;
                 const animElapsed = currentTime - player.animStartTime;
                 const progress = Math.min(animElapsed / animDuration, 1);
-                const easedProgress = easeInOutQuad(progress);
+                const easedProgress = easeInOutCubic(progress);
 
                 player.renderX = player.animFromX + (player.animToX - player.animFromX) * easedProgress;
                 player.renderY = player.animFromY + (player.animToY - player.animFromY) * easedProgress;
@@ -910,7 +941,7 @@ function startRace() {
                         createFirework(player.x - 2, player.y - 1);
                         createFirework(player.x + 2, player.y - 1);
                         playFinishSound(finishOrder.length === 1);
-                        addEventLog(`🏁 ${player.name} 골인! (${finishOrder.length}등)`);
+                        addEventLog('finish', `${player.name} 골인! (${finishOrder.length}등)`);
                     }
                 }
             }
@@ -949,7 +980,7 @@ function handleTileEffect(player, tile, playerIndex, currentTime) {
             player.speedEffectUntil = currentTime + 2500;
             createParticles(player.x, player.y, '#27ae60', 15);
             playBoostSound();
-            addEventLog(`⚡ ${name} 부스트!`);
+            addEventLog('boost', `${name} 부스트!`);
             gameStats.boosts++;
             maze[player.y][player.x] = TILE.PATH;
             break;
@@ -959,7 +990,7 @@ function handleTileEffect(player, tile, playerIndex, currentTime) {
             player.speedEffectUntil = currentTime + 2500;
             createParticles(player.x, player.y, '#9b59b6', 15);
             playSlowSound();
-            addEventLog(`🐌 ${name} 슬로우!`);
+            addEventLog('slow', `${name} 슬로우!`);
             gameStats.slows++;
             maze[player.y][player.x] = TILE.PATH;
             break;
@@ -984,7 +1015,7 @@ function handleTileEffect(player, tile, playerIndex, currentTime) {
             }
             createParticles(lightningOrigX, lightningOrigY, '#f1c40f', 25);
             playLightningSound();
-            addEventLog(`🚀 ${name} 번개점프!`);
+            addEventLog('lightning', `${name} 번개점프!`);
             gameStats.lightnings++;
             break;
 
@@ -993,7 +1024,7 @@ function handleTileEffect(player, tile, playerIndex, currentTime) {
             player.frozenUntil = currentTime + 2000; // Reduced from 2.5s to 2s
             createParticles(player.x, player.y, '#00cec9', 20);
             playFreezeSound();
-            addEventLog(`❄️ ${name} 빙결!`);
+            addEventLog('freeze', `${name} 빙결!`);
             gameStats.freezes++;
             maze[player.y][player.x] = TILE.PATH;
             break;
@@ -1004,8 +1035,8 @@ function handleTileEffect(player, tile, playerIndex, currentTime) {
             const reverseOrigY = player.y;
             // Clear the original REVERSE tile first
             maze[reverseOrigY][reverseOrigX] = TILE.PATH;
-            // Go back 3 steps (reduced from 5)
-            const backSteps = Math.min(3, player.pathIndex);
+            // Go back 5 steps for more comeback potential
+            const backSteps = Math.min(5, player.pathIndex);
             if (backSteps > 0) {
                 player.pathIndex -= backSteps;
                 const newPos = player.path[player.pathIndex];
@@ -1016,7 +1047,7 @@ function handleTileEffect(player, tile, playerIndex, currentTime) {
             }
             createParticles(reverseOrigX, reverseOrigY, '#e74c3c', 20);
             playReverseSound();
-            addEventLog(`↩️ ${name} 후퇴!`);
+            addEventLog('reverse', `${name} 후퇴!`);
             gameStats.reverses++;
             break;
 
@@ -1030,7 +1061,7 @@ function handleTileEffect(player, tile, playerIndex, currentTime) {
                 createParticles(portalB.x, portalB.y, '#3498db', 15);
                 playPortalSound();
                 if (enableFog) revealArea(player.x, player.y, 2);
-                addEventLog(`🌀 ${name} 포탈!`);
+                addEventLog('portal', `${name} 포탈!`);
                 gameStats.portals++;
             }
             break;
@@ -1045,7 +1076,7 @@ function handleTileEffect(player, tile, playerIndex, currentTime) {
                 createParticles(portalA.x, portalA.y, '#3498db', 15);
                 playPortalSound();
                 if (enableFog) revealArea(player.x, player.y, 2);
-                addEventLog(`🌀 ${name} 포탈!`);
+                addEventLog('portal', `${name} 포탈!`);
                 gameStats.portals++;
             }
             break;
@@ -1123,6 +1154,10 @@ function restart() {
     raceStarted = false;
     finishOrder = [];
     particles = [];
+    eventLog = [];  // Clear event log
+    // Clear event log UI
+    const eventLogEl = document.getElementById('eventLog');
+    if (eventLogEl) eventLogEl.innerHTML = '';
     showScreen('startScreen');
 }
 
