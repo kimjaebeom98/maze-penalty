@@ -1,14 +1,794 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hello World</title>
-  <link href='/style.css' rel='stylesheet'>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏃 미로 탈출 게임</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(255, 107, 107, 0.3);
+        }
+
+        .subtitle {
+            color: #a0a0a0;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .screen {
+            display: none;
+            width: 100%;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .screen.active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            width: 100%;
+            max-width: 500px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #e0e0e0;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: #48dbfb;
+            box-shadow: 0 0 20px rgba(72, 219, 251, 0.3);
+        }
+
+        select option {
+            background: #1a1a2e;
+        }
+
+        .player-inputs {
+            display: grid;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .player-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .player-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .player-input input {
+            flex: 1;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(245, 87, 108, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        /* Maze Screen */
+        .maze-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            width: 100%;
+        }
+
+        #mazeCanvas {
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            max-width: 100%;
+            height: auto;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+        }
+
+        /* Result Screen */
+        .result-list {
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .result-item {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            margin-bottom: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            border: 2px solid transparent;
+            animation: slideIn 0.5s ease;
+            animation-fill-mode: backwards;
+        }
+
+        .result-item.loser {
+            background: linear-gradient(135deg, rgba(255, 71, 87, 0.2), rgba(255, 107, 107, 0.2));
+            border-color: #ff6b6b;
+            animation: pulse 1s ease infinite;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(255, 107, 107, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(255, 107, 107, 0.6); }
+        }
+
+        .rank {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-right: 20px;
+            min-width: 50px;
+        }
+
+        .rank.gold { color: #feca57; }
+        .rank.silver { color: #c0c0c0; }
+        .rank.bronze { color: #cd7f32; }
+
+        .player-info {
+            flex: 1;
+        }
+
+        .player-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .player-time {
+            color: #a0a0a0;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .player-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-left: 15px;
+        }
+
+        .loser-badge {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-left: auto;
+            animation: shake 0.5s ease infinite;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: rotate(-3deg); }
+            50% { transform: rotate(3deg); }
+        }
+
+        .winner-crown {
+            font-size: 1.5rem;
+            margin-left: 10px;
+        }
+
+        .exit-marker {
+            position: absolute;
+            font-size: 1.5rem;
+        }
+
+        /* Loading */
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #48dbfb;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            h1 { font-size: 1.8rem; }
+            .card { padding: 20px; }
+            .btn { padding: 15px; font-size: 1rem; }
+            .result-item { padding: 15px; }
+            .rank { font-size: 1.5rem; min-width: 40px; }
+            .player-name { font-size: 1.1rem; }
+        }
+    </style>
 </head>
 <body>
-  <h1>Hello, world!</h1>
-  <button onclick="console.log('hello');">Press me</button>
-  <script defer type="text/javascript" src="/main.js"></script>
+    <div class="container">
+        <!-- Start Screen -->
+        <div id="startScreen" class="screen active">
+            <h1>🏃 미로 탈출</h1>
+            <p class="subtitle">가장 늦게 탈출하면 벌칙!</p>
+
+            <div class="card">
+                <div class="form-group">
+                    <label>👥 참가 인원</label>
+                    <select id="playerCount">
+                        <option value="2">2명</option>
+                        <option value="3">3명</option>
+                        <option value="4" selected>4명</option>
+                        <option value="5">5명</option>
+                        <option value="6">6명</option>
+                        <option value="7">7명</option>
+                        <option value="8">8명</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>✏️ 참가자 이름</label>
+                    <div id="playerInputs" class="player-inputs"></div>
+                </div>
+
+                <button class="btn btn-primary" onclick="startGame()">게임 시작</button>
+            </div>
+        </div>
+
+        <!-- Maze Screen -->
+        <div id="mazeScreen" class="screen">
+            <h1>🧩 미로 생성 완료!</h1>
+            <p class="subtitle">버튼을 누르면 레이스가 시작됩니다</p>
+
+            <div class="maze-container">
+                <canvas id="mazeCanvas"></canvas>
+                <div id="legend" class="legend"></div>
+                <button class="btn btn-secondary" onclick="showResult()">🏁 결과 보기</button>
+            </div>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="resultScreen" class="screen">
+            <h1>🏆 최종 결과</h1>
+            <p class="subtitle">순위가 결정되었습니다!</p>
+
+            <div id="resultList" class="result-list"></div>
+
+            <button class="btn btn-primary" onclick="restart()" style="max-width: 500px; margin-top: 20px;">🔄 다시 하기</button>
+        </div>
+    </div>
+
+    <script>
+        // Player colors - vibrant and distinguishable
+        const COLORS = [
+            '#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3',
+            '#1dd1a1', '#5f27cd', '#ff9f43', '#00d2d3'
+        ];
+
+        // Game state
+        let players = [];
+        let maze = [];
+        let mazeWidth = 21;
+        let mazeHeight = 21;
+        let cellSize = 20;
+        let exitPos = { x: 0, y: 0 };
+        let canvas, ctx;
+        let animationRunning = false;
+
+        // Initialize player inputs
+        function initPlayerInputs() {
+            const count = parseInt(document.getElementById('playerCount').value);
+            const container = document.getElementById('playerInputs');
+            container.innerHTML = '';
+
+            for (let i = 0; i < count; i++) {
+                const div = document.createElement('div');
+                div.className = 'player-input';
+                div.innerHTML = `
+                    <div class="player-color" style="background: ${COLORS[i]}"></div>
+                    <input type="text" id="player${i}" placeholder="참가자 ${i + 1}" maxlength="10">
+                `;
+                container.appendChild(div);
+            }
+        }
+
+        document.getElementById('playerCount').addEventListener('change', initPlayerInputs);
+        initPlayerInputs();
+
+        // Switch screens
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        // Generate maze using Recursive Backtracking
+        function generateMaze() {
+            // Initialize maze with walls
+            maze = [];
+            for (let y = 0; y < mazeHeight; y++) {
+                maze[y] = [];
+                for (let x = 0; x < mazeWidth; x++) {
+                    maze[y][x] = 1; // Wall
+                }
+            }
+
+            // Recursive backtracking
+            function carve(x, y) {
+                maze[y][x] = 0; // Path
+
+                const directions = [
+                    { dx: 0, dy: -2 }, // Up
+                    { dx: 2, dy: 0 },  // Right
+                    { dx: 0, dy: 2 },  // Down
+                    { dx: -2, dy: 0 }  // Left
+                ];
+
+                // Shuffle directions
+                for (let i = directions.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [directions[i], directions[j]] = [directions[j], directions[i]];
+                }
+
+                for (const dir of directions) {
+                    const nx = x + dir.dx;
+                    const ny = y + dir.dy;
+
+                    if (nx > 0 && nx < mazeWidth - 1 && ny > 0 && ny < mazeHeight - 1 && maze[ny][nx] === 1) {
+                        maze[y + dir.dy / 2][x + dir.dx / 2] = 0; // Remove wall between
+                        carve(nx, ny);
+                    }
+                }
+            }
+
+            // Start carving from (1, 1)
+            carve(1, 1);
+
+            // Set exit at bottom-right area
+            exitPos = { x: mazeWidth - 2, y: mazeHeight - 2 };
+            maze[exitPos.y][exitPos.x] = 0;
+        }
+
+        // Find path using BFS
+        function findPath(startX, startY, endX, endY) {
+            const queue = [{ x: startX, y: startY, path: [] }];
+            const visited = new Set();
+            visited.add(`${startX},${startY}`);
+
+            while (queue.length > 0) {
+                const current = queue.shift();
+
+                if (current.x === endX && current.y === endY) {
+                    return [...current.path, { x: current.x, y: current.y }];
+                }
+
+                const directions = [
+                    { dx: 0, dy: -1 },
+                    { dx: 1, dy: 0 },
+                    { dx: 0, dy: 1 },
+                    { dx: -1, dy: 0 }
+                ];
+
+                for (const dir of directions) {
+                    const nx = current.x + dir.dx;
+                    const ny = current.y + dir.dy;
+                    const key = `${nx},${ny}`;
+
+                    if (nx >= 0 && nx < mazeWidth && ny >= 0 && ny < mazeHeight &&
+                        maze[ny][nx] === 0 && !visited.has(key)) {
+                        visited.add(key);
+                        queue.push({
+                            x: nx,
+                            y: ny,
+                            path: [...current.path, { x: current.x, y: current.y }]
+                        });
+                    }
+                }
+            }
+
+            return []; // No path found
+        }
+
+        // Get valid start positions
+        function getStartPositions(count) {
+            const positions = [];
+            const usedPositions = new Set();
+
+            // Define potential start areas (edges of the maze)
+            const startAreas = [
+                { x: 1, y: 1 },
+                { x: mazeWidth - 2, y: 1 },
+                { x: 1, y: mazeHeight - 2 },
+                { x: 1, y: Math.floor(mazeHeight / 2) },
+                { x: Math.floor(mazeWidth / 2), y: 1 },
+                { x: mazeWidth - 2, y: Math.floor(mazeHeight / 2) },
+                { x: Math.floor(mazeWidth / 2), y: mazeHeight - 2 },
+                { x: Math.floor(mazeWidth / 4), y: Math.floor(mazeHeight / 4) }
+            ];
+
+            // Find valid start positions near these areas
+            for (let i = 0; i < count && i < startAreas.length; i++) {
+                const area = startAreas[i];
+                let found = false;
+
+                // Search for a valid path cell near this area
+                for (let r = 0; r < 5 && !found; r++) {
+                    for (let dy = -r; dy <= r && !found; dy++) {
+                        for (let dx = -r; dx <= r && !found; dx++) {
+                            const x = area.x + dx;
+                            const y = area.y + dy;
+                            const key = `${x},${y}`;
+
+                            if (x > 0 && x < mazeWidth - 1 && y > 0 && y < mazeHeight - 1 &&
+                                maze[y][x] === 0 && !usedPositions.has(key) &&
+                                !(x === exitPos.x && y === exitPos.y)) {
+                                positions.push({ x, y });
+                                usedPositions.add(key);
+                                found = true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return positions;
+        }
+
+        // Draw maze
+        function drawMaze() {
+            canvas = document.getElementById('mazeCanvas');
+            ctx = canvas.getContext('2d');
+
+            // Responsive canvas size
+            const maxSize = Math.min(window.innerWidth - 40, 600);
+            cellSize = Math.floor(maxSize / mazeWidth);
+
+            canvas.width = mazeWidth * cellSize;
+            canvas.height = mazeHeight * cellSize;
+
+            // Draw maze
+            for (let y = 0; y < mazeHeight; y++) {
+                for (let x = 0; x < mazeWidth; x++) {
+                    if (maze[y][x] === 1) {
+                        ctx.fillStyle = '#2c3e50';
+                    } else {
+                        ctx.fillStyle = '#1a1a2e';
+                    }
+                    ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+
+                    // Add subtle grid
+                    ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+                    ctx.strokeRect(x * cellSize, y * cellSize, cellSize, cellSize);
+                }
+            }
+
+            // Draw exit
+            ctx.fillStyle = '#2ecc71';
+            ctx.beginPath();
+            ctx.arc(
+                exitPos.x * cellSize + cellSize / 2,
+                exitPos.y * cellSize + cellSize / 2,
+                cellSize / 2 - 2,
+                0, Math.PI * 2
+            );
+            ctx.fill();
+
+            // Exit flag emoji
+            ctx.font = `${cellSize - 4}px serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('🚩', exitPos.x * cellSize + cellSize / 2, exitPos.y * cellSize + cellSize / 2);
+
+            // Draw players
+            players.forEach((player, i) => {
+                drawPlayer(player.x, player.y, COLORS[i], player.name.charAt(0));
+            });
+        }
+
+        // Draw player
+        function drawPlayer(x, y, color, initial) {
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(
+                x * cellSize + cellSize / 2,
+                y * cellSize + cellSize / 2,
+                cellSize / 2 - 3,
+                0, Math.PI * 2
+            );
+            ctx.fill();
+
+            // Player initial
+            ctx.fillStyle = '#fff';
+            ctx.font = `bold ${cellSize / 2}px sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(initial.toUpperCase(), x * cellSize + cellSize / 2, y * cellSize + cellSize / 2);
+        }
+
+        // Start game
+        function startGame() {
+            const count = parseInt(document.getElementById('playerCount').value);
+            players = [];
+
+            for (let i = 0; i < count; i++) {
+                const input = document.getElementById(`player${i}`);
+                const name = input.value.trim() || `참가자 ${i + 1}`;
+                players.push({ name, x: 0, y: 0, path: [], pathIndex: 0, finished: false, finishTime: 0 });
+            }
+
+            // Generate maze
+            generateMaze();
+
+            // Assign start positions
+            const startPositions = getStartPositions(count);
+            players.forEach((player, i) => {
+                if (startPositions[i]) {
+                    player.x = startPositions[i].x;
+                    player.y = startPositions[i].y;
+                }
+                player.path = findPath(player.x, player.y, exitPos.x, exitPos.y);
+            });
+
+            // Create legend
+            const legend = document.getElementById('legend');
+            legend.innerHTML = players.map((p, i) => `
+                <div class="legend-item">
+                    <div class="legend-color" style="background: ${COLORS[i]}"></div>
+                    <span>${p.name}</span>
+                </div>
+            `).join('') + `
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #2ecc71"></div>
+                    <span>🚩 출구</span>
+                </div>
+            `;
+
+            showScreen('mazeScreen');
+            drawMaze();
+        }
+
+        // Show result with animation
+        function showResult() {
+            if (animationRunning) return;
+            animationRunning = true;
+
+            let time = 0;
+            const speed = 100; // ms per step
+
+            function animate() {
+                let allFinished = true;
+
+                players.forEach((player, i) => {
+                    if (!player.finished && player.pathIndex < player.path.length) {
+                        allFinished = false;
+                        const pos = player.path[player.pathIndex];
+                        player.x = pos.x;
+                        player.y = pos.y;
+                        player.pathIndex++;
+
+                        if (player.x === exitPos.x && player.y === exitPos.y) {
+                            player.finished = true;
+                            player.finishTime = time;
+                        }
+                    }
+                });
+
+                drawMaze();
+
+                // Draw paths
+                players.forEach((player, i) => {
+                    ctx.strokeStyle = COLORS[i];
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    for (let j = 0; j < player.pathIndex; j++) {
+                        const pos = player.path[j];
+                        if (j === 0) {
+                            ctx.moveTo(pos.x * cellSize + cellSize / 2, pos.y * cellSize + cellSize / 2);
+                        } else {
+                            ctx.lineTo(pos.x * cellSize + cellSize / 2, pos.y * cellSize + cellSize / 2);
+                        }
+                    }
+                    ctx.stroke();
+                });
+
+                // Redraw players on top
+                players.forEach((player, i) => {
+                    drawPlayer(player.x, player.y, COLORS[i], player.name.charAt(0));
+                });
+
+                time++;
+
+                if (!allFinished) {
+                    setTimeout(animate, speed);
+                } else {
+                    animationRunning = false;
+                    setTimeout(showResultScreen, 500);
+                }
+            }
+
+            animate();
+        }
+
+        // Show result screen
+        function showResultScreen() {
+            // Sort by finish time
+            const sorted = [...players].map((p, i) => ({ ...p, color: COLORS[i] }))
+                .sort((a, b) => a.finishTime - b.finishTime);
+
+            const resultList = document.getElementById('resultList');
+            resultList.innerHTML = '';
+
+            sorted.forEach((player, rank) => {
+                const isLoser = rank === sorted.length - 1;
+                const div = document.createElement('div');
+                div.className = `result-item ${isLoser ? 'loser' : ''}`;
+                div.style.animationDelay = `${rank * 0.1}s`;
+
+                let rankClass = '';
+                let rankEmoji = '';
+                if (rank === 0) { rankClass = 'gold'; rankEmoji = '👑'; }
+                else if (rank === 1) { rankClass = 'silver'; }
+                else if (rank === 2) { rankClass = 'bronze'; }
+
+                div.innerHTML = `
+                    <div class="rank ${rankClass}">${rank + 1}</div>
+                    <div class="player-info">
+                        <div class="player-name">${player.name} ${rank === 0 ? '<span class="winner-crown">👑</span>' : ''}</div>
+                        <div class="player-time">이동 거리: ${player.path.length} 칸</div>
+                    </div>
+                    ${isLoser ? '<div class="loser-badge">벌칙!</div>' : ''}
+                    <div class="player-avatar" style="background: ${player.color}"></div>
+                `;
+
+                resultList.appendChild(div);
+            });
+
+            showScreen('resultScreen');
+        }
+
+        // Restart game
+        function restart() {
+            players.forEach(p => {
+                p.pathIndex = 0;
+                p.finished = false;
+                p.finishTime = 0;
+            });
+            showScreen('startScreen');
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            if (document.getElementById('mazeScreen').classList.contains('active')) {
+                drawMaze();
+            }
+        });
+    </script>
 </body>
 </html>
