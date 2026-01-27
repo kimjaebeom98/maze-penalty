@@ -5,7 +5,7 @@ const COLORS = [
 ];
 
 const MAZE_SIZE = 35;
-const MOVE_DURATION = 80;
+const MOVE_DURATION = 140; // Slower for better visibility
 
 // Tile types
 const TILE = {
@@ -284,13 +284,13 @@ function addSpecialTiles() {
     let idx = 0;
 
     // Place items - one-time placement at game start
-    // Balanced distribution
+    // Reduced item count for cleaner gameplay
     const itemConfig = [
-        { type: TILE.BOOST, count: 4 },      // 좋은 아이템
-        { type: TILE.SLOW, count: 4 },       // 나쁜 아이템
-        { type: TILE.LIGHTNING, count: 2 },  // 강력한 좋은 아이템
-        { type: TILE.FREEZE, count: 3 },     // 나쁜 아이템
-        { type: TILE.REVERSE, count: 3 }     // 나쁜 아이템
+        { type: TILE.BOOST, count: 2 },      // 좋은 아이템
+        { type: TILE.SLOW, count: 2 },       // 나쁜 아이템
+        { type: TILE.LIGHTNING, count: 1 },  // 강력한 좋은 아이템
+        { type: TILE.FREEZE, count: 2 },     // 나쁜 아이템
+        { type: TILE.REVERSE, count: 1 }     // 나쁜 아이템 (1개만)
     ];
 
     for (const item of itemConfig) {
@@ -934,30 +934,33 @@ function handleTileEffect(player, tile, playerIndex, currentTime) {
 
     switch (tile) {
         case TILE.BOOST:
-            player.speedMultiplier = 2.5;
-            player.speedEffectUntil = currentTime + 3000;
+            player.speedMultiplier = 2;  // Reduced from 2.5x to 2x
+            player.speedEffectUntil = currentTime + 2500;
             createParticles(player.x, player.y, '#27ae60', 15);
             playBoostSound();
             addEventLog(`${name} 부스트!`);
-            showEventBanner(`${name} 부스트!`);
             gameStats.boosts++;
-            maze[player.y][player.x] = TILE.PATH; // Remove item after use
+            maze[player.y][player.x] = TILE.PATH;
             break;
 
         case TILE.SLOW:
-            player.speedMultiplier = 0.3;
-            player.speedEffectUntil = currentTime + 3000;
+            player.speedMultiplier = 0.4;  // Reduced penalty from 0.3x to 0.4x
+            player.speedEffectUntil = currentTime + 2500;
             createParticles(player.x, player.y, '#9b59b6', 15);
             playSlowSound();
             addEventLog(`${name} 슬로우...`);
-            showEventBanner(`${name} 슬로우!`);
             gameStats.slows++;
             maze[player.y][player.x] = TILE.PATH;
             break;
 
         case TILE.LIGHTNING:
-            // Jump forward 8 steps
-            const jumpSteps = Math.min(8, player.path.length - player.pathIndex - 1);
+            // Save original position BEFORE moving
+            const lightningOrigX = player.x;
+            const lightningOrigY = player.y;
+            // Clear the original LIGHTNING tile first
+            maze[lightningOrigY][lightningOrigX] = TILE.PATH;
+            // Jump forward 5 steps (reduced from 8)
+            const jumpSteps = Math.min(5, player.path.length - player.pathIndex - 1);
             if (jumpSteps > 0) {
                 player.pathIndex += jumpSteps;
                 const newPos = player.path[player.pathIndex];
@@ -968,28 +971,30 @@ function handleTileEffect(player, tile, playerIndex, currentTime) {
                 player.visitedPath.push({ x: player.x, y: player.y });
                 if (enableFog) revealArea(player.x, player.y, 3);
             }
-            createParticles(player.x, player.y, '#f1c40f', 25);
+            createParticles(lightningOrigX, lightningOrigY, '#f1c40f', 25);
             playLightningSound();
             addEventLog(`${name} 번개 점프!`);
-            showEventBanner(`${name} 번개 점프!`);
             gameStats.lightnings++;
-            maze[player.y][player.x] = TILE.PATH;
             break;
 
         case TILE.FREEZE:
             player.frozen = true;
-            player.frozenUntil = currentTime + 2500;
+            player.frozenUntil = currentTime + 2000; // Reduced from 2.5s to 2s
             createParticles(player.x, player.y, '#00cec9', 20);
             playFreezeSound();
             addEventLog(`${name} 빙결!`);
-            showEventBanner(`${name} 빙결!`);
             gameStats.freezes++;
             maze[player.y][player.x] = TILE.PATH;
             break;
 
         case TILE.REVERSE:
-            // Go back 5 steps
-            const backSteps = Math.min(5, player.pathIndex);
+            // Save original position BEFORE moving
+            const reverseOrigX = player.x;
+            const reverseOrigY = player.y;
+            // Clear the original REVERSE tile first
+            maze[reverseOrigY][reverseOrigX] = TILE.PATH;
+            // Go back 3 steps (reduced from 5)
+            const backSteps = Math.min(3, player.pathIndex);
             if (backSteps > 0) {
                 player.pathIndex -= backSteps;
                 const newPos = player.path[player.pathIndex];
@@ -998,12 +1003,10 @@ function handleTileEffect(player, tile, playerIndex, currentTime) {
                 player.renderX = player.x;
                 player.renderY = player.y;
             }
-            createParticles(player.x, player.y, '#e74c3c', 20);
+            createParticles(reverseOrigX, reverseOrigY, '#e74c3c', 20);
             playReverseSound();
             addEventLog(`${name} 후퇴!`);
-            showEventBanner(`${name} 후퇴!`);
             gameStats.reverses++;
-            maze[player.y][player.x] = TILE.PATH;
             break;
 
         case TILE.PORTAL_A:
