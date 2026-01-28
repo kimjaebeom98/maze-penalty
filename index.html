@@ -1,17 +1,33 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Maze Penalty - 미로 탈출 게임</title>
-    <meta name="description" content="Fun party game to decide who pays! Maze escape penalty game for friends. 친구들과 함께하는 벌칙 게임!">
-    <meta name="keywords" content="maze game, penalty game, party game, drinking game, 미로 게임, 벌칙 게임, 내기 게임, 사다리 게임">
-    <meta name="google-adsense-account" content="ca-pub-6282210327287366">
-    <link rel="stylesheet" href="style.css">
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <title>Maze Penalty - Free Online Party Game | Who Pays? Decision Game</title>
+    <meta name="description" content="Free online maze escape party game. Perfect for deciding who pays, picks penalties, or makes group decisions. Fun alternative to ladder games. Play with 2-8 players!">
+    <meta name="keywords" content="maze game, penalty game, party game, drinking game, decision game, who pays, ladder game alternative, free online game, multiplayer game">
+    <meta name="author" content="Maze Penalty">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://maze-penalty.pages.dev/">
+
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Maze Penalty - Free Online Party Game">
+    <meta property="og:description" content="Fun maze escape game to decide who pays or gets the penalty. Play with 2-8 friends!">
+    <meta property="og:url" content="https://maze-penalty.pages.dev/">
+    <meta property="og:site_name" content="Maze Penalty">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Maze Penalty - Free Online Party Game">
+    <meta name="twitter:description" content="Fun maze escape game to decide who pays or gets the penalty!">
+
     <!-- Google AdSense -->
+    <meta name="google-adsense-account" content="ca-pub-6282210327287366">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6282210327287366" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
     <div class="top-controls">
@@ -28,10 +44,10 @@
     <div class="container">
         <!-- ========== START SCREEN ========== -->
         <div id="startScreen" class="screen active">
-            <div class="logo">
+            <header class="logo">
                 <i data-lucide="footprints" class="logo-icon"></i>
                 <h1 data-i18n="title">Maze Penalty</h1>
-            </div>
+            </header>
             <p class="subtitle" data-i18n="subtitle">Last one out gets the penalty!</p>
 
             <div class="start-content">
@@ -44,7 +60,7 @@
 
                     <div class="form-group">
                         <label><i data-lucide="users" class="label-icon"></i> <span data-i18n="playerCount">Players</span></label>
-                        <select id="playerCount">
+                        <select id="playerCount" aria-label="Number of players">
                             <option value="2">2</option>
                             <option value="3">3</option>
                             <option value="4" selected>4</option>
@@ -83,54 +99,42 @@
                     </div>
                     <div class="feature-list">
                         <div class="feature-item">
-                            <div class="feature-icon boost">
-                                <i data-lucide="zap"></i>
-                            </div>
+                            <div class="feature-icon boost"><i data-lucide="zap"></i></div>
                             <div class="feature-text">
                                 <h4 data-i18n="boost">Boost</h4>
                                 <p data-i18n="boostDesc">2x speed increase</p>
                             </div>
                         </div>
                         <div class="feature-item">
-                            <div class="feature-icon slow">
-                                <i data-lucide="snail"></i>
-                            </div>
+                            <div class="feature-icon slow"><i data-lucide="snail"></i></div>
                             <div class="feature-text">
                                 <h4 data-i18n="slow">Slow</h4>
                                 <p data-i18n="slowDesc">0.4x speed decrease</p>
                             </div>
                         </div>
                         <div class="feature-item">
-                            <div class="feature-icon lightning">
-                                <i data-lucide="rocket"></i>
-                            </div>
+                            <div class="feature-icon lightning"><i data-lucide="rocket"></i></div>
                             <div class="feature-text">
                                 <h4 data-i18n="lightning">Lightning Jump</h4>
                                 <p data-i18n="lightningDesc">Teleport 5 tiles forward</p>
                             </div>
                         </div>
                         <div class="feature-item">
-                            <div class="feature-icon freeze">
-                                <i data-lucide="snowflake"></i>
-                            </div>
+                            <div class="feature-icon freeze"><i data-lucide="snowflake"></i></div>
                             <div class="feature-text">
                                 <h4 data-i18n="freeze">Freeze</h4>
                                 <p data-i18n="freezeDesc">Stop for 2 seconds</p>
                             </div>
                         </div>
                         <div class="feature-item">
-                            <div class="feature-icon reverse">
-                                <i data-lucide="undo-2"></i>
-                            </div>
+                            <div class="feature-icon reverse"><i data-lucide="undo-2"></i></div>
                             <div class="feature-text">
                                 <h4 data-i18n="reverse">Reverse</h4>
                                 <p data-i18n="reverseDesc">Move back 5 tiles</p>
                             </div>
                         </div>
                         <div class="feature-item">
-                            <div class="feature-icon portal">
-                                <i data-lucide="rotate-3d"></i>
-                            </div>
+                            <div class="feature-icon portal"><i data-lucide="rotate-3d"></i></div>
                             <div class="feature-text">
                                 <h4 data-i18n="portal">Portal</h4>
                                 <p data-i18n="portalDesc">Teleport to opposite side</p>
@@ -147,12 +151,84 @@
                     </button>
                 </div>
             </div>
+
+            <!-- How to Play Section -->
+            <section class="how-to-play" id="howToPlay">
+                <h2 data-i18n="howToPlayTitle">How to Play</h2>
+                <div class="how-to-steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <h3 data-i18n="step1Title">Enter Player Names</h3>
+                        <p data-i18n="step1Desc">Add 2-8 players who will compete in the maze race.</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <h3 data-i18n="step2Title">Start the Race</h3>
+                        <p data-i18n="step2Desc">Watch as players automatically navigate through the maze.</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <h3 data-i18n="step3Title">Last One Gets Penalty</h3>
+                        <p data-i18n="step3Desc">The slowest player receives the penalty. Fair and fun!</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- About Section -->
+            <section class="about-section" id="about">
+                <h2 data-i18n="aboutTitle">About Maze Penalty</h2>
+                <p data-i18n="aboutDesc">Maze Penalty is a free online party game designed to make group decisions fun and fair. Whether you're deciding who pays for dinner, who does a dare, or who picks the next activity, our maze race creates excitement and suspense. Unlike traditional ladder games, Maze Penalty features power-ups, obstacles, and real-time racing that keeps everyone engaged.</p>
+                <div class="features-grid">
+                    <div class="feature-box">
+                        <i data-lucide="users"></i>
+                        <h3 data-i18n="feature1">2-8 Players</h3>
+                        <p data-i18n="feature1Desc">Perfect for small gatherings or large parties</p>
+                    </div>
+                    <div class="feature-box">
+                        <i data-lucide="smartphone"></i>
+                        <h3 data-i18n="feature2">Mobile Friendly</h3>
+                        <p data-i18n="feature2Desc">Play on any device - phone, tablet, or computer</p>
+                    </div>
+                    <div class="feature-box">
+                        <i data-lucide="globe"></i>
+                        <h3 data-i18n="feature3">Multi-Language</h3>
+                        <p data-i18n="feature3Desc">Available in English and Korean</p>
+                    </div>
+                    <div class="feature-box">
+                        <i data-lucide="zap"></i>
+                        <h3 data-i18n="feature4">Power-Ups</h3>
+                        <p data-i18n="feature4Desc">6 different items for exciting gameplay</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- FAQ Section -->
+            <section class="faq-section" id="faq">
+                <h2 data-i18n="faqTitle">Frequently Asked Questions</h2>
+                <div class="faq-list">
+                    <details class="faq-item">
+                        <summary data-i18n="faq1Q">Is Maze Penalty free to play?</summary>
+                        <p data-i18n="faq1A">Yes! Maze Penalty is completely free to play with no hidden costs or in-app purchases.</p>
+                    </details>
+                    <details class="faq-item">
+                        <summary data-i18n="faq2Q">Do I need to download anything?</summary>
+                        <p data-i18n="faq2A">No download required. Maze Penalty runs directly in your web browser on any device.</p>
+                    </details>
+                    <details class="faq-item">
+                        <summary data-i18n="faq3Q">How is the winner/loser determined?</summary>
+                        <p data-i18n="faq3A">Each player's character automatically finds the shortest path through the maze. Random items can speed up or slow down players, making the race unpredictable and exciting!</p>
+                    </details>
+                    <details class="faq-item">
+                        <summary data-i18n="faq4Q">Can I play on my phone?</summary>
+                        <p data-i18n="faq4A">Absolutely! Maze Penalty is fully optimized for mobile devices. Just open the website in your mobile browser.</p>
+                    </details>
+                </div>
+            </section>
         </div>
 
         <!-- ========== MAZE SCREEN ========== -->
         <div id="mazeScreen" class="screen">
             <div class="maze-wrapper">
-                <!-- Main Area -->
                 <div class="maze-main">
                     <div class="game-status">
                         <h2 id="gameTitle">
@@ -185,7 +261,6 @@
                     </button>
                 </div>
 
-                <!-- Sidebar -->
                 <div class="maze-sidebar">
                     <div class="sidebar-card">
                         <h3 class="yellow">
@@ -223,7 +298,6 @@
             <p class="subtitle" id="resultSubtitle" data-i18n="rankDecided">Rankings have been decided!</p>
 
             <div class="result-content">
-                <!-- Rankings -->
                 <div class="card">
                     <div class="card-title">
                         <i data-lucide="bar-chart-3"></i>
@@ -232,7 +306,6 @@
                     <div id="resultList" class="result-list"></div>
                 </div>
 
-                <!-- Stats -->
                 <div class="card stats-card">
                     <div class="card-title">
                         <i data-lucide="trending-up"></i>
@@ -261,7 +334,6 @@
                     </div>
                 </div>
 
-                <!-- Share & Restart -->
                 <div class="share-section">
                     <button class="btn-share copy" onclick="copyResult()">
                         <i data-lucide="clipboard-copy"></i>
@@ -276,10 +348,24 @@
         </div>
     </div>
 
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <i data-lucide="footprints"></i>
+                <span>Maze Penalty</span>
+            </div>
+            <nav class="footer-links">
+                <a href="privacy.html" data-i18n="privacy">Privacy Policy</a>
+                <a href="terms.html" data-i18n="terms">Terms of Service</a>
+                <a href="about.html" data-i18n="aboutPage">About</a>
+                <a href="contact.html" data-i18n="contact">Contact</a>
+            </nav>
+            <p class="footer-copyright">&copy; 2025 Maze Penalty. All rights reserved.</p>
+        </div>
+    </footer>
+
     <script src="main.js"></script>
-    <script>
-        // Initialize Lucide icons
-        lucide.createIcons();
-    </script>
+    <script>lucide.createIcons();</script>
 </body>
 </html>

@@ -74,7 +74,41 @@ const TRANSLATIONS = {
         tiles: 'tiles',
         resultCopied: 'Result copied to clipboard!',
         mazeGameResult: 'Maze Penalty Game Result',
-        tryMazeGame: 'Try Maze Penalty to decide who pays!'
+        tryMazeGame: 'Try Maze Penalty to decide who pays!',
+        // How to Play
+        howToPlayTitle: 'How to Play',
+        step1Title: 'Enter Player Names',
+        step1Desc: 'Add 2-8 players who will compete in the maze race.',
+        step2Title: 'Start the Race',
+        step2Desc: 'Watch as players automatically navigate through the maze.',
+        step3Title: 'Last One Gets Penalty',
+        step3Desc: 'The slowest player receives the penalty. Fair and fun!',
+        // About Section
+        aboutTitle: 'About Maze Penalty',
+        aboutDesc: 'Maze Penalty is a free online party game designed to make group decisions fun and fair. Whether you\'re deciding who pays for dinner, who does a dare, or who picks the next activity, our maze race creates excitement and suspense. Unlike traditional ladder games, Maze Penalty features power-ups, obstacles, and real-time racing that keeps everyone engaged.',
+        feature1: '2-8 Players',
+        feature1Desc: 'Perfect for small gatherings or large parties',
+        feature2: 'Mobile Friendly',
+        feature2Desc: 'Play on any device - phone, tablet, or computer',
+        feature3: 'Multi-Language',
+        feature3Desc: 'Available in English and Korean',
+        feature4: 'Power-Ups',
+        feature4Desc: '6 different items for exciting gameplay',
+        // FAQ
+        faqTitle: 'Frequently Asked Questions',
+        faq1Q: 'Is Maze Penalty free to play?',
+        faq1A: 'Yes! Maze Penalty is completely free to play with no hidden costs or in-app purchases.',
+        faq2Q: 'Do I need to download anything?',
+        faq2A: 'No download required. Maze Penalty runs directly in your web browser on any device.',
+        faq3Q: 'How is the winner/loser determined?',
+        faq3A: 'Each player\'s character automatically finds the shortest path through the maze. Random items can speed up or slow down players, making the race unpredictable and exciting!',
+        faq4Q: 'Can I play on my phone?',
+        faq4A: 'Absolutely! Maze Penalty is fully optimized for mobile devices. Just open the website in your mobile browser.',
+        // Footer
+        privacy: 'Privacy Policy',
+        terms: 'Terms of Service',
+        aboutPage: 'About',
+        contact: 'Contact'
     },
     ko: {
         title: '미로 탈출',
@@ -128,7 +162,41 @@ const TRANSLATIONS = {
         tiles: '칸',
         resultCopied: '결과가 클립보드에 복사되었습니다!',
         mazeGameResult: '미로 탈출 게임 결과',
-        tryMazeGame: '미로 탈출 게임으로 벌칙자를 정해보세요!'
+        tryMazeGame: '미로 탈출 게임으로 벌칙자를 정해보세요!',
+        // How to Play
+        howToPlayTitle: '게임 방법',
+        step1Title: '참가자 이름 입력',
+        step1Desc: '미로 레이스에 참가할 2-8명의 이름을 입력하세요.',
+        step2Title: '레이스 시작',
+        step2Desc: '참가자들이 자동으로 미로를 탈출하는 것을 지켜보세요.',
+        step3Title: '꼴찌가 벌칙!',
+        step3Desc: '가장 늦게 도착한 사람이 벌칙을 받습니다. 공정하고 재미있어요!',
+        // About Section
+        aboutTitle: 'Maze Penalty 소개',
+        aboutDesc: 'Maze Penalty는 그룹 결정을 재미있고 공정하게 만들기 위해 설계된 무료 온라인 파티 게임입니다. 저녁 값을 누가 낼지, 벌칙을 누가 받을지, 다음 활동을 누가 정할지 결정할 때 미로 레이스로 흥미진진하게 정해보세요. 기존 사다리 게임과 달리 파워업, 장애물, 실시간 레이싱으로 모두가 몰입할 수 있습니다.',
+        feature1: '2-8명 플레이',
+        feature1Desc: '소규모 모임부터 대규모 파티까지',
+        feature2: '모바일 최적화',
+        feature2Desc: '휴대폰, 태블릿, 컴퓨터 어디서든',
+        feature3: '다국어 지원',
+        feature3Desc: '영어와 한국어 지원',
+        feature4: '파워업 아이템',
+        feature4Desc: '6가지 아이템으로 역전 가능',
+        // FAQ
+        faqTitle: '자주 묻는 질문',
+        faq1Q: 'Maze Penalty는 무료인가요?',
+        faq1A: '네! Maze Penalty는 숨겨진 비용이나 인앱 구매 없이 완전히 무료입니다.',
+        faq2Q: '다운로드가 필요한가요?',
+        faq2A: '다운로드 필요 없습니다. 모든 기기의 웹 브라우저에서 바로 플레이할 수 있습니다.',
+        faq3Q: '승자/패자는 어떻게 결정되나요?',
+        faq3A: '각 플레이어의 캐릭터가 미로를 통과하는 최단 경로를 자동으로 찾습니다. 랜덤 아이템이 플레이어의 속도를 높이거나 늦출 수 있어 레이스가 예측 불가능하고 흥미진진합니다!',
+        faq4Q: '휴대폰으로 플레이할 수 있나요?',
+        faq4A: '물론이죠! Maze Penalty는 모바일 기기에 완전히 최적화되어 있습니다. 모바일 브라우저에서 웹사이트를 열기만 하면 됩니다.',
+        // Footer
+        privacy: '개인정보처리방침',
+        terms: '이용약관',
+        aboutPage: '소개',
+        contact: '문의하기'
     }
 };
 
